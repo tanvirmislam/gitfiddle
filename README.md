@@ -1,2 +1,2 @@
 # gitfiddle
-A web-app to visualize git branching
+Visualization tool for git branching
