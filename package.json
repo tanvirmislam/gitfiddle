@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node server/index.js",
-    "dev": "cd ./client-app && npm run build && cd .. && nodemon server/index.js"
+    "build-and-dev": "cd ./client-app && npm run build && cd .. && nodemon server/index.js",
+    "dev": "nodemon server/index.js"
   },
   "keywords": [
     "Git",
