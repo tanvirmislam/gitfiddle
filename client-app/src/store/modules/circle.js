@@ -11,6 +11,9 @@ class Circle {
         this._radius = d/2;
     }
 
+    set x(val) { this._xCoord = val; }
+    set y(val) { this._yCoord = val; }
+
     get x() { return this._xCoord; }
     get y() { return this._yCoord; }
     get d() { return this._diameter; }

@@ -14,7 +14,7 @@
             initStrokeColor: 255,
             finalStrokeColor: 0,
             currentStrokeColor: 255,
-            strokeColorAnimDiff: 4,
+            strokeColorAnimDiff: 20,
             fillColor: '#C2E2E2',
             lineColor: '#54BA70',
         }),
@@ -38,7 +38,7 @@
 
         methods: {
             setup(sketch) {
-                sketch.createCanvas(800, 800);
+                sketch.createCanvas(1000, 800);
                 sketch.background(this.backgroundColor);
                 sketch.stroke(this.initStrokeColor);
                 sketch.noFill();
