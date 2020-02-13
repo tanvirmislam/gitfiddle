@@ -35,7 +35,8 @@ class Tree {
         }
 
         this.updateLevelOrder();
-        this.adjustHorizontalPositions();
+        // this.adjustHorizontalPositions();
+        this.adjustHorizontalPositions(this.root, 0, 1000);
     }
 
     updateLevelOrder() {
@@ -69,71 +70,79 @@ class Tree {
         }
     }
 
-    adjustHorizontalPositions() {
-        let diameter = (this._levelOrder.length > 0 && this._levelOrder[0][0] !== null) ? this._levelOrder[0][0].circle.d : 50;
-        let canvasWidth = 1000;
-        let margin = diameter + 10;
+    adjustHorizontalPositions(node, minX, maxX) {
+        if (node === null) {
+            return;
+        }
 
-        this._distBetweenNodes = Math.max(0, (canvasWidth - (2*margin) - (this._width * diameter)) / this._width);
-        
-        let treeMaxWidthDistance = this._width * (diameter + this._distBetweenNodes);
-        
-        let minXPos = Math.ceil (canvasWidth / 2 - Math.floor(treeMaxWidthDistance / 2)) + margin;
-        let maxXPos = Math.floor(canvasWidth / 2 + Math.floor(treeMaxWidthDistance / 2)) - margin;
-        
-        console.log(`\n\nminXPos: ${minXPos}, maxXPos: ${maxXPos}`);
-        console.log(`Tree Max Width Distance: ${treeMaxWidthDistance}`);
+        console.log(`\n\nVisiting ${node.name} with minX: ${minX}, maxX: ${maxX}`);
+        let space = maxX - minX;
+        let center = (space / 2) + minX;
 
-        for (let i = 0; i < this._levelOrder.length; ++i) {
-            let level = this._levelOrder[i];    
-            let numberOfNodes = level.length;
+        console.log(`Adjusting node ${node.name}'s position from ${node.circle.x} to ${center}`);
+        node.circle.x = center;
+
+        if (node.children.length === 0) {
+            return;
+        }
+
+        let childrenSpace = (space / node.children.length);
+        console.log(childrenSpace.toString());
         
-            let maxSpace = Math.ceil((maxXPos - minXPos) / numberOfNodes);
-            let currentXCoord = minXPos;
-            
-            console.log(`\nLevel ${i}:`);
+        let startX = minX;
+        let endX = startX + childrenSpace;
 
-            for (let j = 0; j < level.length; ++j) {
-                console.log(`Adjusting node ${level[j].name}'s x position from ${level[j].circle.x} to ${currentXCoord}`);
-
-                if (i === 0 && this._levelOrder.length > 2) {
-                    let rootXCoord = (currentXCoord + (((this._levelOrder[1].length - 1)  * Math.ceil((maxXPos - minXPos) / this._levelOrder[1].length))) / 2);
-                    level[j].circle.x = rootXCoord;
-                }
-                else {
-                    level[j].circle.x = currentXCoord;
-                    currentXCoord += maxSpace;    
-                }
-            }
+        for (let i = 0; i < node.children.length; ++i) {
+            console.log(`Calling adjust to node ${node.children[i].name} with minPos: ${startX}, maxPos: ${endX}`);
+            this.adjustHorizontalPositions(node.children[i], startX, endX);
+            startX = endX;
+            endX += childrenSpace;
         }
     }
-
+    
     buildTestTree() {
-        let n1  = new Node("n1",  new Circle(400, 100, 50));
-        let n2  = new Node("n2",  new Circle(300, 200, 50));
-        let n3  = new Node("n3",  new Circle(500, 200, 50));
-        let n4  = new Node("n4",  new Circle(400, 300, 50));
-        let n5  = new Node("n5",  new Circle(600, 300, 50));
-        let n6  = new Node("n6",  new Circle(300, 300, 50));
-        let n7  = new Node("n7",  new Circle(300, 400, 50));
-        let n8  = new Node("n8",  new Circle(200, 300, 50));
-        let n9  = new Node("n9",  new Circle(500, 300, 50));
-        let n10 = new Node("n10", new Circle(100, 300, 50));
-        let n11 = new Node("n11", new Circle(700, 300, 50));
+        let n1  = new Node("n1",  new Circle(300, 100, 35));
+        let n2  = new Node("n2",  new Circle(300, 200, 35));
+        let n3  = new Node("n3",  new Circle(500, 200, 35));
+        let n4  = new Node("n4",  new Circle(400, 300, 35));
+        let n5  = new Node("n5",  new Circle(600, 300, 35));
+        let n6  = new Node("n6",  new Circle(300, 300, 35));
+        let n7  = new Node("n7",  new Circle(400, 400, 35));
+        let n8  = new Node("n8",  new Circle(200, 300, 35));
+        let n9  = new Node("n9",  new Circle(500, 300, 35));
+        let n10 = new Node("n10", new Circle(100, 300, 35));
+        let n11 = new Node("n11", new Circle(700, 300, 35));
+        let n12 = new Node("n12", new Circle(600, 400, 35));
+        let n13 = new Node("n13", new Circle(500, 400, 35));
+
+        let n14 = new Node("n14", new Circle(500, 400, 35));
+        let n15 = new Node("n15", new Circle(500, 400, 35));
+        let n16 = new Node("n16", new Circle(500, 500, 35));
+        let n17 = new Node("n17", new Circle(500, 500, 35));
+        let n18 = new Node("n18", new Circle(500, 500, 35));
+        let n19 = new Node("n19", new Circle(500, 500, 35));
 
         this._root = n1;
         this._nodeDict[this._root.name] = this._root;
 
-        this.addNodeTo("n1", n2);
-        this.addNodeTo("n1", n3);
-        this.addNodeTo("n2", n6);
-        this.addNodeTo("n2", n8);
-        this.addNodeTo("n2", n10);
-        this.addNodeTo("n6", n7);
-        this.addNodeTo("n3", n4);
-        this.addNodeTo("n3", n9);
-        this.addNodeTo("n3", n5);
-        this.addNodeTo("n3", n11);
+        this.addNodeTo("n1",  n2);
+        this.addNodeTo("n1",  n3);
+        this.addNodeTo("n2",  n6);
+        this.addNodeTo("n2",  n8);
+        this.addNodeTo("n2",  n10);
+        this.addNodeTo("n6",  n7);
+        this.addNodeTo("n3",  n4);
+        this.addNodeTo("n3",  n9);
+        this.addNodeTo("n3",  n5);
+        this.addNodeTo("n3",  n11);
+        this.addNodeTo("n11", n12);
+        this.addNodeTo("n11", n13);
+        this.addNodeTo("n4", n14);
+        this.addNodeTo("n4", n15);
+        this.addNodeTo("n14", n16);
+        this.addNodeTo("n14", n17);
+        this.addNodeTo("n15", n18);
+        this.addNodeTo("n15", n19);
 
         console.log(`Tree height: ${this._height}, width: ${this._width}, levels: ${this._levelOrder.length}`);
         

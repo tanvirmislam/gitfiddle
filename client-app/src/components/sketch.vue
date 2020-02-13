@@ -1,7 +1,16 @@
 <template>
+    <div>
+    <v-row>
+        <div>
+            <p> Window width: {{ windowWidth }} </p>
+            <p> Window height: {{ windowHeight }} </p>
+        </div>
+    </v-row>
+    
     <v-row align="center" justify="center">
         <vue-p5 @setup="setup" @draw="draw"></vue-p5>
     </v-row>
+    </div>
 </template>
 
 <script>
@@ -10,6 +19,8 @@
 
     export default {
         data: () => ({
+            windowWidth: 0,
+            windowHeight: 0,
             backgroundColor: 255,
             initStrokeColor: 255,
             finalStrokeColor: 0,
@@ -26,6 +37,17 @@
         created() {
 
         },
+
+        mounted() {
+            this.$nextTick(function() {
+                window.addEventListener('resize', this.getWindowWidth);
+                window.addEventListener('resize', this.getWindowHeight);
+
+                //Init
+                this.getWindowWidth()
+                this.getWindowHeight()
+            })
+        },
         
         computed: {
             ...mapGetters({
@@ -37,6 +59,18 @@
         },
 
         methods: {
+            getWindowWidth() {
+                this.windowWidth = document.documentElement.clientWidth;
+            },
+
+            getWindowHeight() {
+                this.windowHeight = document.documentElement.clientHeight;
+            },
+
+            windowResized() {
+                console.log('resized');
+            },
+
             setup(sketch) {
                 sketch.createCanvas(1000, 800);
                 sketch.background(this.backgroundColor);
@@ -44,6 +78,7 @@
                 sketch.noFill();
                 sketch.angleMode(sketch.RADIANS);
                 sketch.ellipseMode(sketch.CENTER);
+                sketch.textSize(10);
             },
 
             draw(sketch) {
@@ -84,6 +119,7 @@
                 sketch.stroke(this.finalStrokeColor);
                 sketch.fill(this.fillColor);
                 sketch.ellipse(node.circle.x, node.circle.y, node.circle.d, node.circle.d);
+                sketch.text(node.name, node.circle.x, node.circle.y);
             },
 
             drawLineToParent(sketch, node) {
@@ -106,6 +142,11 @@
 
                 return angle;
             }
+        },
+
+        beforeDestroy() {
+            window.removeEventListener('resize', this.getWindowWidth);
+            window.removeEventListener('resize', this.getWindowHeight);
         }
     }
 </script>
