@@ -1,33 +1,38 @@
 <template>
-    <div>
-    <v-row>
-        <div>
-            <p> Window width: {{ windowWidth }} </p>
-            <p> Window height: {{ windowHeight }} </p>
-        </div>
-    </v-row>
-    
     <v-row align="center" justify="center">
         <vue-p5 @setup="setup" @draw="draw"></vue-p5>
     </v-row>
-    </div>
 </template>
 
 <script>
     import VueP5 from "vue-p5";
-    import { mapGetters } from 'vuex';
+    import { mapGetters, mapActions } from 'vuex';
 
     export default {
         data: () => ({
-            windowWidth: 0,
-            windowHeight: 0,
-            backgroundColor: 255,
-            initStrokeColor: 255,
-            finalStrokeColor: 0,
-            currentStrokeColor: 255,
-            strokeColorAnimDiff: 20,
-            fillColor: '#C2E2E2',
-            lineColor: '#54BA70',
+            dimensions: {
+                windowWidth: 0,
+                windowHeight: 0,
+
+                sketchWidth: 1000,
+                sketchHeight: 800,
+                
+                sketchMarginTop: 100,
+                sketchMarginBottom: 0,
+                sketchMarginLeft: 350,
+                sketchMarginRight: 100 
+            },
+
+            colors: {
+                background: 255,
+                initialStroke: 255,
+                finalStroke: 0,
+                currentStroke: 255,
+                strokeAnimationDiff: 20,
+                fill: '#DCF0EB',
+                line: 0,
+                text: '#C13719'
+            }
         }),
 
         components: {
@@ -40,52 +45,77 @@
 
         mounted() {
             this.$nextTick(function() {
-                window.addEventListener('resize', this.getWindowWidth);
-                window.addEventListener('resize', this.getWindowHeight);
-
-                //Init
-                this.getWindowWidth()
-                this.getWindowHeight()
+                // window.addEventListener('resize', this.adjustDimensions);
+                this.adjustDimensions();
             })
         },
         
         computed: {
             ...mapGetters({
-                getTree: 'tree',
-                getRoot: 'root',
-                getNodeDict: 'nodeDict',
-                getNode: 'node'
+                sidebarWidth: 'sidebarWidth',
+                tree: 'tree',
+                root: 'root',
+                treeInfo: 'treeInfo',
+                treeFormatter: 'treeFormatter',
+                nodeDict: 'nameToNodeDict'
             }),
         },
 
         methods: {
-            getWindowWidth() {
-                this.windowWidth = document.documentElement.clientWidth;
-            },
+            ...mapActions([
+                'setCanvasWidth',
+                'setCanvasHeight'
+            ]),
 
-            getWindowHeight() {
-                this.windowHeight = document.documentElement.clientHeight;
-            },
+            adjustDimensions(sketch) {
+                if (this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'sm') {
+                    this.dimensions.sketchMarginLeft = 10;
+                    this.dimensions.sketchMarginRight = 10;
+                }
+                else {
+                    this.dimensions.sketchMarginLeft = this.sidebarWidth + 50;
+                    this.dimensions.sketchMarginRight = 50;
+                }
 
-            windowResized() {
-                console.log('resized');
+                this.dimensions.windowWidth = document.documentElement.clientWidth;
+                this.dimensions.windowHeight = document.documentElement.clientHeight;
+
+                this.dimensions.sketchWidth = this.dimensions.windowWidth - this.dimensions.sketchMarginLeft - this.dimensions.sketchMarginRight;
+                this.dimensions.sketchHeight = this.dimensions.windowHeight - this.dimensions.sketchMarginTop - this.dimensions.sketchMarginBottom;
+
+                sketch.resizeCanvas(this.dimensions.sketchWidth, this.dimensions.sketchHeight);
+                
+                this.setCanvasWidth(this.dimensions.sketchWidth);
+                this.setCanvasHeight(this.dimensions.sketchHeight);
+
+                this.tree.adjust();
             },
 
             setup(sketch) {
-                sketch.createCanvas(1000, 800);
-                sketch.background(this.backgroundColor);
-                sketch.stroke(this.initStrokeColor);
+                sketch.createCanvas(this.dimensions.sketchWidth, this.dimensions.sketchHeight);
+                this.adjustDimensions(sketch);
+
+                sketch.background(this.colors.background);
+                sketch.stroke(this.colors.initialStroke);
                 sketch.noFill();
+                
                 sketch.angleMode(sketch.RADIANS);
                 sketch.ellipseMode(sketch.CENTER);
+                
                 sketch.textSize(10);
+                sketch.textAlign(sketch.CENTER, sketch.CENTER);
+
+                window.addEventListener('resize', () => {
+                    console.log('windowResized');
+                    this.adjustDimensions(sketch);
+                });
             },
 
             draw(sketch) {
-                sketch.background(this.backgroundColor);
+                sketch.background(this.colors.background);
                 
-                for (let nodeName in this.getNodeDict) {
-                    let node = this.getNodeDict[nodeName];
+                for (let nodeName in this.nodeDict) {
+                    let node = this.nodeDict[nodeName];
 
                     if (node.isAnimated) {
                         this.drawAnimatingNode(sketch, node);
@@ -102,41 +132,45 @@
             },
 
             drawAnimatingNode(sketch, node) {
-                sketch.stroke(this.currentStrokeColor);
+                sketch.stroke(this.colors.currentStroke);
                 sketch.noFill();
-                sketch.ellipse(node.circle.x, node.circle.y, node.circle.d, node.circle.d);
+                sketch.ellipse(node.x, node.y, node.d, node.d);
 
-                if (this.currentStrokeColor > this.finalStrokeColor) {
-                    this.currentStrokeColor = (this.currentStrokeColor - this.strokeColorAnimDiff) < this.finalStrokeColor ? this.finalStrokeColor : (this.currentStrokeColor - this.strokeColorAnimDiff);
+                if (this.colors.currentStroke > this.colors.finalStroke) {
+                    this.colors.currentStroke = (this.colors.currentStroke - this.colors.strokeAnimationDiff) < this.colors.finalStroke ? this.colors.finalStroke : (this.colors.currentStroke - this.colors.strokeAnimationDiff);
                 }
                 else {
                     node.isAnimated = false;
-                    this.currentStrokeColor = this.initStrokeColor;
+                    this.colors.currentStroke = this.colors.initialStroke;
                 }
             },
 
             drawStaticNode(sketch, node) {
-                sketch.stroke(this.finalStrokeColor);
-                sketch.fill(this.fillColor);
-                sketch.ellipse(node.circle.x, node.circle.y, node.circle.d, node.circle.d);
-                sketch.text(node.name, node.circle.x, node.circle.y);
+                sketch.stroke(this.colors.finalStroke);
+                sketch.fill(this.colors.fill);
+                sketch.ellipse(node.x, node.y, node.d, node.d);
+
+                sketch.fill(this.colors.text);
+                sketch.noStroke();
+                sketch.text(node.name, node.x, node.y);
             },
 
             drawLineToParent(sketch, node) {
                 let angle = this.getAngleBetweenNodes(sketch, node, node.parent);
                 
-                let x0 = Math.floor(node.circle.x + ( node.circle.r * sketch.cos(angle) ));
-                let y0 = Math.floor(node.circle.y - ( node.circle.r * sketch.sin(angle) ));
+                let x0 = Math.floor(node.x + ( node.r * sketch.cos(angle) ));
+                let y0 = Math.floor(node.y - ( node.r * sketch.sin(angle) ));
 
-                let x1 = Math.floor(node.parent.circle.x + ( node.parent.circle.r * sketch.cos(angle + sketch.PI) ));
-                let y1 = Math.floor(node.parent.circle.y - ( node.parent.circle.r * sketch.sin(angle + sketch.PI) ));
+                let x1 = Math.floor(node.parent.x + ( node.parent.r * sketch.cos(angle + sketch.PI) ));
+                let y1 = Math.floor(node.parent.y - ( node.parent.r * sketch.sin(angle + sketch.PI) ));
 
+                sketch.stroke(this.colors.line);
                 sketch.line(x0, y0, x1, y1);
             },
 
             getAngleBetweenNodes(sketch, node1, node2) {
-                let vec1 = sketch.createVector(node1.circle.r, 0);
-                let vec2 = sketch.createVector(node2.circle.x - node1.circle.x, node1.circle.y - node2.circle.y);
+                let vec1 = sketch.createVector(node1.r, 0);
+                let vec2 = sketch.createVector(node2.x - node1.x, node1.y - node2.y);
                 
                 let angle = vec1.angleBetween(vec2);
 
@@ -145,8 +179,8 @@
         },
 
         beforeDestroy() {
-            window.removeEventListener('resize', this.getWindowWidth);
-            window.removeEventListener('resize', this.getWindowHeight);
+            window.removeEventListener('resize', this.readWindowWidth);
+            window.removeEventListener('resize', this.readWindowHeight);
         }
     }
 </script>

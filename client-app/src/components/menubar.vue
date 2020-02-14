@@ -1,13 +1,13 @@
 <template>
     <div>
-        <v-app-bar app clipped-left color="primary" height="60">
+        <v-app-bar app clipped-left color="brown lighten-4" height="70">
             
-            <v-app-bar-nav-icon @click.stop="toggle()">
-                <span class="ml-2 mr-3"> <font-awesome-icon icon="list" /> </span>
+            <v-app-bar-nav-icon class="ml-3" color="grey darken-3" @click.stop="toggle()">
+                <span class="ml-5 mr-5 headline"> <font-awesome-icon icon="code-branch" /> </span>
             </v-app-bar-nav-icon>
             
             <v-toolbar-title class="mr-12 align-center">
-                <span class="title">{{ getTitle }}</span>
+                <span class="title font-weight-light">{{ getTitle }}</span>
             </v-toolbar-title>
             
             <v-spacer />

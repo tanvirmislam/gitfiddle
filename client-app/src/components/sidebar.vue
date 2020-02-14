@@ -1,6 +1,6 @@
 <template>
 
-    <v-navigation-drawer v-model="status" app clipped flat mobile-break-point color="grey lighten-3" width="400">
+    <v-navigation-drawer v-model="status" app clipped flat mobile-break-point color="grey lighten-3" :width="sidebarWidth">
         <v-text-field v-model="cmd" label="Command" outlined class="mt-5" @keydown.enter="commandEntered"></v-text-field>
     </v-navigation-drawer>
 
@@ -9,7 +9,7 @@
 
 
 <script>
-    import { mapActions } from 'vuex';
+    import { mapGetters, mapActions } from 'vuex';
 
     export default {
         data: () => ({
@@ -17,6 +17,10 @@
         }),
 
         computed: {
+            ...mapGetters([
+                'sidebarWidth'
+            ]),
+
             status: {
                 get () {
                     return this.$store.getters.sidebarVisibilityStatus;

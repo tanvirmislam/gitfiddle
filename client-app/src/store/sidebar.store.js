@@ -1,12 +1,14 @@
 // STATE
 const state = {
-    isSidebarVisible: true
+    isSidebarVisible: true,
+    sidebarWidth: 350
 };
 
 
 // GETTERS
 const getters = {
-    sidebarVisibilityStatus: state => state.isSidebarVisible
+    sidebarVisibilityStatus: state => state.isSidebarVisible,
+    sidebarWidth: state => state.sidebarWidth
 };
 
 // MUTATIONS
