@@ -5,6 +5,7 @@ class Tree {
     #_nameToNodeDict;
     #_info;
     #_formatter;
+    #_currentBranch;
 
     constructor(treeFormatter) {
         this._root = null;
@@ -15,6 +16,7 @@ class Tree {
             levelOrder: []
         }
         this._formatter = treeFormatter;
+        this._currentBranch = null;
 
         this._buildTestTree();
     }
@@ -22,12 +24,18 @@ class Tree {
     set root(node) {
         this._root = node;
         this._nameToNodeDict[this._root.name] = this._root;
+        this._currentBranch = this._root;
+    }
+
+    set currentBranch(nodeName) { 
+        this._currentBranch = this._nameToNodeDict[nodeName]; 
     }
 
     get root()              { return this._root; }
     get info()              { return this._info; }
     get formatter()         { return this._formatter; }
     get nameToNodeDict()    { return this._nameToNodeDict; }
+    get currentBranch()     { return this._currentBranch; }
     
     getNode(name) {
         return this._nameToNodeDict[name];
@@ -106,6 +114,7 @@ class Tree {
 
         this._root = n1;
         this._nameToNodeDict[this._root.name] = this._root;
+        this._currentBranch = n1;
         
         this.addNodeTo("n1",  n2);
         this.addNodeTo("n1",  n3);

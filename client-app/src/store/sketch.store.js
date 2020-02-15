@@ -1,5 +1,6 @@
 import TreeFormatter from './tree-modules/tree-formatter';
 import Tree from './tree-modules/tree';
+import CommandHandler from './tree-modules/command-handler';
 
 
 // STATE

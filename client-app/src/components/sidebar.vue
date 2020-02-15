@@ -10,15 +10,18 @@
 
 <script>
     import { mapGetters, mapActions } from 'vuex';
+    import CommandHandler from '../store/tree-modules/command-handler';
 
     export default {
         data: () => ({
-            cmd: ''
+            cmd: '',
+            commandHandler: new CommandHandler()
         }),
 
         computed: {
             ...mapGetters([
-                'sidebarWidth'
+                'sidebarWidth',
+                'tree'
             ]),
 
             status: {
@@ -46,9 +49,10 @@
             }),
 
             commandEntered() {
-                console.log('Entered: ' + this.cmd);
+                console.log('\nCommand entered: ' + this.cmd);
                 this.setGitCommand(this.cmd);
-                console.log('Command set to: ' + this.$store.getters.command);
+                this.commandHandler.process(this.cmd, this.tree);
+                this.cmd = '';
             }
         },
 

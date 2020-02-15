@@ -57,8 +57,15 @@
                 root: 'root',
                 treeInfo: 'treeInfo',
                 treeFormatter: 'treeFormatter',
-                nodeDict: 'nameToNodeDict'
+                nodeDict: 'nameToNodeDict',
+                gitCommand: 'command'
             }),
+        },
+
+        watch: {
+            gitCommand(newVal, oldVal) {
+                
+            }
         },
 
         methods: {

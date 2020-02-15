@@ -1,6 +1,6 @@
 // STATE
 const state = {
-    command: ' ',
+    command: '',
     history: new Array()
 };
 
