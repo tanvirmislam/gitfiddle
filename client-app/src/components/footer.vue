@@ -1,6 +1,6 @@
 <template>
-    <v-row align="center" justify="center">
-        <v-col>
+    <v-row>
+        <v-col align="right" class="mr-5">
             <div>(c) Tanvir Islam</div>
         </v-col>
     </v-row>

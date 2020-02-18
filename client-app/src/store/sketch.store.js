@@ -1,20 +1,22 @@
-import TreeFormatter from './tree-modules/tree-formatter';
-import Tree from './tree-modules/tree';
-import CommandHandler from './tree-modules/command-handler';
+import TreeFormatter from './git-tree-modules/tree-formatter';
+import Tree from './git-tree-modules/tree';
 
 
 // STATE
 const state = {
-    tree: new Tree(new TreeFormatter())
+    tree: new Tree(new TreeFormatter()),
+    animationSpeed: 50
 };
 
 // GETTERS
 const getters = {
     tree: state => state.tree,
     root: state => state.tree.root,
+    nodeSet: state => state.tree.nodeSet,
+    branchNameToNodeDict: state => state.tree.branchNameToNodeDict,
     treeInfo: state => state.tree.info,
     treeFormatter: state => state.tree.formatter,
-    nameToNodeDict: state => state.tree.nameToNodeDict
+    animationSpeed: state => state.animationSpeed
 };
 
 // MUTATIONS
@@ -23,12 +25,16 @@ const mutations = {
         state.tree.addNodeTo(parentName, node);
     },
 
-    setCanvasWidth(state, width) {
+    setFormatterCanvasWidth(state, width) {
         state.tree.formatter.canvasWidth = width;
     },
 
-    setCanvasHeight(state, height) {
+    setFormatterCanvasHeight(state, height) {
         state.tree.formatter.canvasHeight = height;
+    },
+
+    setAnimationSpeed(state, spd) {
+        state.animationSpeed = spd;
     }
 };
 
@@ -38,12 +44,16 @@ const actions = {
         context.commit('addNodeTo', parentName, node);
     },
 
-    setCanvasWidth(context, width) {
-        context.commit('setCanvasWidth', width);
+    setFormatterCanvasWidth(context, width) {
+        context.commit('setFormatterCanvasWidth', width);
     },
 
-    setCanvasHeight(context, height) {
-        context.commit('setCanvasHeight', height);
+    setFormatterCanvasHeight(context, height) {
+        context.commit('setFormatterCanvasHeight', height);
+    },
+
+    setAnimationSpeed(context, spd) {
+        context.commit('setAnimationSpeed', spd);
     }
 };
 

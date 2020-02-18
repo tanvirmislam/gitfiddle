@@ -45,7 +45,7 @@ class CommandHandler {
                 break;
             case 'commit': {
                 console.log(`Commit on current branch`);
-                let n = new Node(tree.currentBranch.name + '_' + tree.info.height.toString(), 500, 500, 35);
+                let n = new Node(tree.currentBranch.name + '-' + tree.currentBranch.children.length + '-' + tree.info.height.toString(), 35);
                 tree.addNodeTo(tree.currentBranch.name, n);
                 break;
             }

@@ -1,7 +1,15 @@
 <template>
-    <v-row align="center" justify="center">
-        <vue-p5 @setup="setup" @draw="draw"></vue-p5>
-    </v-row>
+    <div>
+        <v-row align="center" justify="center">
+            <vue-p5 @setup="setup" @draw="draw"></vue-p5>
+        </v-row>
+
+        <v-row v-if="!hasStarted" align="center" justify="center">
+            <v-col align="center">
+                <v-btn large color="error" @click.prevent="startSim"> Get Started! </v-btn>
+            </v-col>
+        </v-row>
+    </div>
 </template>
 
 <script>
@@ -10,6 +18,8 @@
 
     export default {
         data: () => ({
+            hasStarted: false,
+            
             dimensions: {
                 windowWidth: 0,
                 windowHeight: 0,
@@ -18,7 +28,7 @@
                 sketchHeight: 800,
                 
                 sketchMarginTop: 100,
-                sketchMarginBottom: 0,
+                sketchMarginBottom: 150,
                 sketchMarginLeft: 350,
                 sketchMarginRight: 100 
             },
@@ -28,7 +38,6 @@
                 initialStroke: 255,
                 finalStroke: 0,
                 currentStroke: 255,
-                strokeAnimationDiff: 20,
                 fill: '#DCF0EB',
                 line: 0,
                 text: '#C13719'
@@ -45,8 +54,7 @@
 
         mounted() {
             this.$nextTick(function() {
-                // window.addEventListener('resize', this.adjustDimensions);
-                this.adjustDimensions();
+                this.adjustDimensions(null);
             })
         },
         
@@ -55,24 +63,32 @@
                 sidebarWidth: 'sidebarWidth',
                 tree: 'tree',
                 root: 'root',
+                nodeSet: 'nodeSet',
+                branchNameToNodeDict: 'branchNameToNodeDict',
                 treeInfo: 'treeInfo',
                 treeFormatter: 'treeFormatter',
-                nodeDict: 'nameToNodeDict',
-                gitCommand: 'command'
+                gitCommand: 'command',
+                animationSpeed: 'animationSpeed'
             }),
         },
 
         watch: {
-            gitCommand(newVal, oldVal) {
+            gitCommand() {
                 
             }
         },
 
         methods: {
             ...mapActions([
-                'setCanvasWidth',
-                'setCanvasHeight'
+                'setFormatterCanvasWidth',
+                'setFormatterCanvasHeight',
+                'setAnimationSpeed'
             ]),
+
+            startSim() {
+                this.hasStarted = true;
+                this.tree.reset();
+            },
 
             adjustDimensions(sketch) {
                 if (this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'sm') {
@@ -90,10 +106,12 @@
                 this.dimensions.sketchWidth = this.dimensions.windowWidth - this.dimensions.sketchMarginLeft - this.dimensions.sketchMarginRight;
                 this.dimensions.sketchHeight = this.dimensions.windowHeight - this.dimensions.sketchMarginTop - this.dimensions.sketchMarginBottom;
 
-                sketch.resizeCanvas(this.dimensions.sketchWidth, this.dimensions.sketchHeight);
-                
-                this.setCanvasWidth(this.dimensions.sketchWidth);
-                this.setCanvasHeight(this.dimensions.sketchHeight);
+                if (sketch !== undefined && sketch !== null) {
+                    sketch.resizeCanvas(this.dimensions.sketchWidth, this.dimensions.sketchHeight);
+                }
+
+                this.setFormatterCanvasWidth(this.dimensions.sketchWidth);
+                this.setFormatterCanvasHeight(this.dimensions.sketchHeight);
 
                 this.tree.adjust();
             },
@@ -101,7 +119,7 @@
             setup(sketch) {
                 sketch.createCanvas(this.dimensions.sketchWidth, this.dimensions.sketchHeight);
                 this.adjustDimensions(sketch);
-
+                
                 sketch.background(this.colors.background);
                 sketch.stroke(this.colors.initialStroke);
                 sketch.noFill();
@@ -116,14 +134,17 @@
                     console.log('windowResized');
                     this.adjustDimensions(sketch);
                 });
+
+                // console.log('Nodes: ');
+                // for (let node of this.nodeSet) {
+                //     console.log(node.id);
+                // }
             },
 
             draw(sketch) {
                 sketch.background(this.colors.background);
-                
-                for (let nodeName in this.nodeDict) {
-                    let node = this.nodeDict[nodeName];
 
+                for (let node of this.nodeSet) {
                     if (node.isAnimated) {
                         this.drawAnimatingNode(sketch, node);
                         break;
@@ -136,6 +157,7 @@
                         }
                     }
                 }
+                
             },
 
             drawAnimatingNode(sketch, node) {
@@ -144,7 +166,7 @@
                 sketch.ellipse(node.x, node.y, node.d, node.d);
 
                 if (this.colors.currentStroke > this.colors.finalStroke) {
-                    this.colors.currentStroke = (this.colors.currentStroke - this.colors.strokeAnimationDiff) < this.colors.finalStroke ? this.colors.finalStroke : (this.colors.currentStroke - this.colors.strokeAnimationDiff);
+                    this.colors.currentStroke = (this.colors.currentStroke - this.animationSpeed) < this.colors.finalStroke ? this.colors.finalStroke : (this.colors.currentStroke - this.animationSpeed);
                 }
                 else {
                     node.isAnimated = false;
@@ -159,7 +181,7 @@
 
                 sketch.fill(this.colors.text);
                 sketch.noStroke();
-                sketch.text(node.name, node.x, node.y);
+                sketch.text(node.id, node.x, node.y);
             },
 
             drawLineToParent(sketch, node) {

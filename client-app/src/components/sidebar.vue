@@ -1,16 +1,22 @@
 <template>
 
-    <v-navigation-drawer v-model="status" app clipped flat mobile-break-point color="grey lighten-3" :width="sidebarWidth">
-        <v-text-field v-model="cmd" label="Command" outlined class="mt-5" @keydown.enter="commandEntered"></v-text-field>
-    </v-navigation-drawer>
 
+    <v-navigation-drawer dark v-model="status" app clipped flat mobile-break-point :width="sidebarWidth">
+        <v-container>
+            
+            <v-footer absolute padless color='#363636'>
+                <v-text-field v-model="cmd" label="Command" outlined class="mt-3 ml-2 mr-2" @keydown.enter="commandEntered"></v-text-field>
+            </v-footer>
+        </v-container>
+        
+    </v-navigation-drawer>
 
 </template>
 
 
 <script>
     import { mapGetters, mapActions } from 'vuex';
-    import CommandHandler from '../store/tree-modules/command-handler';
+    import CommandHandler from '../store/git-tree-modules/command-handler';
 
     export default {
         data: () => ({

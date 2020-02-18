@@ -16,11 +16,6 @@
                 
                 <router-view></router-view>
                 
-                <!-- <v-row align="center" justify="center">
-                    <v-spacer></v-spacer>
-                    <p5-sketch />
-                </v-row> -->
-            
             </v-container>
         </v-content>
 

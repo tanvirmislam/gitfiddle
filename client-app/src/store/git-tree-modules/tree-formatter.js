@@ -12,12 +12,9 @@ class TreeFormatter {
             return;
         }
 
-        console.log(`\nVisiting ${node.name} with minX: ${minX}, maxX: ${maxX}`);
-        
         let space = maxX - minX;
         let center = (space / 2) + minX;
 
-        console.log(`Adjusting node ${node.name}'s position from ${node.x} to ${center}`);
         node.x = center;
         node.y = y;
 
@@ -31,7 +28,6 @@ class TreeFormatter {
         let yPos = y + yIncrement;
 
         for (let i = 0; i < node.children.length; ++i) {
-            console.log(`Calling adjust on node ${node.children[i].name} with minPos: ${startX}, maxPos: ${endX}`);
             this._recursivelyAdjust(node.children[i], startX, endX, yPos, yIncrement);
             startX = endX;
             endX += childrenSpace;
@@ -39,11 +35,15 @@ class TreeFormatter {
     }
 
     adjustTree(tree) {
-        console.log('\n\nTreeFormatter::adjustTree');
+        // console.log('\n\nTreeFormatter::adjustTree');
         let margin = 50;
 
-        let verticalDistance = Math.min(100, ((this._canvasHeight - margin) / tree.info.levelOrder.length));
-        this._recursivelyAdjust(tree.root, margin, this._canvasWidth - margin, margin, verticalDistance);
+        let startXPos = margin;
+        let endXPos = Math.min(1000 - margin, this._canvasWidth - margin);
+        let startYPos = margin;
+        let yIncrement = Math.min(100, ((this._canvasHeight - margin) / tree.info.levelOrder.length));
+
+        this._recursivelyAdjust(tree.root, startXPos, endXPos, startYPos, yIncrement);
     }
 
     set canvasWidth(width)      { this._canvasWidth = width; }
