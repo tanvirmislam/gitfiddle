@@ -1,7 +1,7 @@
 // STATE
 const state = {
     isSidebarVisible: true,
-    sidebarWidth: 350
+    sidebarWidth: 380
 };
 
 

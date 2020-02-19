@@ -27,7 +27,8 @@
     "vue-server-renderer": "^2.6.10",
     "vue-template-compiler": "^2.6.10",
     "p5": "^0.10.2",
-    "vue-p5": "^0.8.3"
+    "vue-p5": "^0.8.3",
+    "vuebar": "^0.0.20"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^4.2.0",

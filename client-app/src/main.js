@@ -23,6 +23,9 @@ import store from './store';
 // App root
 import App from './components/app-root';
 
+// Scroll bar
+import Vuebar from 'vuebar';
+
 // ---------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------
 
@@ -30,6 +33,7 @@ import App from './components/app-root';
 // Initiate Vue
 Vue.config.productionTip = false
 Vue.component('font-awesome-icon', FontAwesomeIcon);
+Vue.use(Vuebar);
 Vue.prototype.$http = axios;
 
 sync(store, router);

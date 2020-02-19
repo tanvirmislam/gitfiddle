@@ -67,7 +67,6 @@
                 branchNameToNodeDict: 'branchNameToNodeDict',
                 treeInfo: 'treeInfo',
                 treeFormatter: 'treeFormatter',
-                gitCommand: 'command',
                 animationSpeed: 'animationSpeed'
             }),
         },

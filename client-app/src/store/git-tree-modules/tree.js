@@ -44,6 +44,8 @@ class Tree {
 
         this.updateTreeInfo();
         this.adjust();
+
+        this.formatter.margin = node.d;
     }
 
     set currentBranch(name) {

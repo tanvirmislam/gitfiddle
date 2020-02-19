@@ -5,6 +5,7 @@ class TreeFormatter {
     constructor() {
         this._canvasWidth = 1000;
         this._canvasHeight = 800;
+        this._margin = 10;
     }
 
     _recursivelyAdjust(node, minX, maxX, y, yIncrement) {
@@ -36,21 +37,22 @@ class TreeFormatter {
 
     adjustTree(tree) {
         // console.log('\n\nTreeFormatter::adjustTree');
-        let margin = 50;
 
-        let startXPos = margin;
-        let endXPos = Math.min(1000 - margin, this._canvasWidth - margin);
-        let startYPos = margin;
-        let yIncrement = Math.min(100, ((this._canvasHeight - margin) / tree.info.levelOrder.length));
+        let startXPos = this._margin;
+        let endXPos = this._canvasWidth - this._margin;
+        let startYPos = this._margin;
+        let yIncrement = Math.min(100, ((this._canvasHeight - this._margin) / tree.info.levelOrder.length));
 
         this._recursivelyAdjust(tree.root, startXPos, endXPos, startYPos, yIncrement);
     }
 
     set canvasWidth(width)      { this._canvasWidth = width; }
     set canvasHeight(height)    { this._canvasHeight = height; }
+    set margin(val)             { this._margin = val; }
 
     get canvasWidth()   { return this._canvasWidth; }
     get canvasHeight()  { return this._canvasHeight; }
+    get margin()        { return this._margin; }
 }
 
 export default TreeFormatter;
