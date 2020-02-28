@@ -5,18 +5,27 @@
         
         <div v-bar class="vuebar-element"> 
             <v-list dense>
+
                 <v-subheader>Command History</v-subheader>
                 <v-list-item-group>
-                    <v-list-item v-for="(cmd, i) in history" :key="i">
+                    <v-list-item v-for="(commandObj, i) in history" :key="i">
                         <v-list-item-content>
-                            <div>
-                                <span>{{ cmd }}</span>
-                                <span v-if="isBeingProcessed(cmd)" class="ml-2"><font-awesome-icon icon="spinner" pulse /></span>
-                                <span v-if="hasBeenProcessed(cmd)" class="ml-2"><font-awesome-icon icon="check" /></span>
-                            </div>
+
+                            <v-row>
+                                <v-col>
+                                    <span>{{ commandObj.command }}</span>
+                                </v-col>
+                                <v-spacer></v-spacer>
+                                <v-col align="right">
+                                    <span v-if="isBeingProcessed(commandObj)"><font-awesome-icon icon="spinner" pulse /></span>
+                                    <span v-if="hasBeenProcessed(commandObj)" class="ml-2"><font-awesome-icon icon="check" /></span>
+                                </v-col>
+                            </v-row>
+
                         </v-list-item-content>
                     </v-list-item>
                 </v-list-item-group>
+            
             </v-list>
         </div>
 
@@ -55,28 +64,53 @@
                 set(val) {
                     return val;
                 }
-            },
-
-            gitCommand: {
-                get() {
-                    return this.$store.getters.command;
-                },
-                set(val) {
-                    return val;
-                }
             }
+
         },
 
         methods: {
             ...mapActions({
-                addGitCommand: 'add',
-                popGitCommand: 'pop',
-                isBeingProcessed: 'isBeingProcessed',
-                hasBeenProcessed: 'hasBeenProcessed'
+                addGitCommand: 'add'
             }),
 
+            commandStrToObj(commandStr) {
+                let commandObj = null;
+
+                for (let i = 0; i < this.history.length; ++i) {
+                    if (this.history[i].command === commandStr) {
+                        commandObj = this.history[i];
+                        break;
+                    }
+                }
+
+                return commandObj;
+            },
+
+            isBeingProcessed(commandObj) {
+                if (commandObj !== null) {
+                    return (commandObj.hasExecuted === false && this.queue.includes(commandObj));
+                }
+                else {
+                    return false;
+                }
+            },
+
+            hasBeenProcessed(commandObj) {
+                if (commandObj !== null) {
+                    return (commandObj.hasExecuted === true && !this.queue.includes(commandObj));
+                }
+                else {
+                    return false;
+                }
+            },
+
+            popHistory() {
+                return this.history.pop();
+            },
+
             commandEntered() {
-                this.addGitCommand(new Command(this.cmd, null));
+                let commandObj = new Command(this.cmd, null);
+                this.addGitCommand(commandObj);
                 // this.commandHandler.process(this.cmd, this.tree);
                 this.cmd = '';
             }
