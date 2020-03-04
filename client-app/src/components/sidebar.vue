@@ -70,7 +70,7 @@
 
         methods: {
             ...mapActions({
-                addGitCommand: 'add'
+                queueGitCommand: 'add'
             }),
 
             commandStrToObj(commandStr) {
@@ -110,13 +110,17 @@
 
             commandEntered() {
                 let commandObj = new Command(this.cmd, null);
-                this.addGitCommand(commandObj);
-                // this.commandHandler.process(this.cmd, this.tree);
+                this.queueGitCommand(commandObj);
                 this.cmd = '';
             }
         },
 
-        
+        watch: {
+            queue() {
+                console.log('queue has changed')
+                // this.commandHandler.process(this.cmd, this.tree);
+            }
+        }
     }
 
 </script>

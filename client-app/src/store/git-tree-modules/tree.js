@@ -10,11 +10,12 @@ class Tree {
     #_currentBranch;
 
     constructor(treeFormatter) {
-        this._init(treeFormatter);
+        this._formatter = treeFormatter;
+        this._init();
         this._buildDemoTree();
     }
 
-    _init(treeFormatter) {
+    _init() {
         this._root = null;
         this._nodeSet = new Set();
         this._idToNodeDict = {};
@@ -25,7 +26,6 @@ class Tree {
             height: 0,
             levelOrder: []
         }
-        this._formatter = treeFormatter;
         this._currentBranch = null;
     }
 
@@ -99,7 +99,7 @@ class Tree {
     }
 
     reset() {
-        this._init(this._formatter);
+        this._init();
 
         let diameter = 35;
         this.root = new Node('master', diameter);
