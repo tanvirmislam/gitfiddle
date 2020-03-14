@@ -1,20 +1,9 @@
 import Node from './node';
 
 class CommandHandler {
-    #_supportedCommands;
     #_regex;
 
     constructor() {
-        let cmd = [
-            'git checkout',
-            'git branch',
-            'git checkout -b',
-            'git commit',
-            'git rebase',
-            'git push'
-        ];
-
-        this._supportedCommands = new Set(cmd);
         this._regex = /\bgit\b ((\b(checkout -b|checkout|branch)\b \b[A-Za-z0-9]{2,}\b)|(\brebase\b \b[A-Za-z0-9]{2,}\b \b[A-Za-z0-9]{2,}\b)|(\bcommit\b))/g;
     }
 
@@ -30,23 +19,18 @@ class CommandHandler {
         switch (cmdTokens[1]) {
             case 'checkout':
                 if (cmdTokens[2] === '-b') {
-                    console.log(`Branch from ${tree.currentBranch.name} to ${cmdTokens[3]}`);
-                    console.log(`Checkout ${cmdTokens[3]}`);
-                    tree.currentBranch = cmdTokens[3];
+                    console.log(`TODO: Branch from ${tree.currentBranchNode.id} to ${cmdTokens[3]}`);
+                    console.log(`TODO: Checkout new branch ${cmdTokens[3]}`);
                 }
                 else {
-                    console.log(`Checkout ${cmdTokens[2]}`);
-                    tree.currentBranch = cmdTokens[2];
+                    this.do_checkout(tree, cmdTokens[2]);
                 }
                 break;
             case 'branch':
-                console.log(`Branch from ${tree.currentBranch.name} to ${cmdTokens[2]}`);
-                tree.currentBranch = cmdTokens[2];
+                console.log(`TODO: Branch from ${tree.currentBranchNode.id} to ${cmdTokens[2]}`);
                 break;
             case 'commit': {
-                console.log(`Commit on current branch`);
-                let n = new Node(tree.currentBranch.name + '-' + tree.currentBranch.children.length + '-' + tree.info.height.toString(), 35);
-                tree.addNodeTo(tree.currentBranch.name, n);
+                this.do_commit(tree);
                 break;
             }
             case 'rebase':
@@ -55,8 +39,22 @@ class CommandHandler {
             default:
                 console.log(`PUSHED`);
                 break;
-        }
-        
+        }   
+    }
+
+    do_checkout(tree, branchName) {
+        tree.setCurrentBranch(branchName);
+        console.log(`Current branch set to: Name = ${tree.currentBranchName}, Node ID = ${tree.currentBranchNode.id}`);
+    }
+
+    do_commit(tree) {
+        console.log(`Committing on current branch: Name = ${tree.currentBranchName}, Node ID = ${tree.currentBranchNode.id}`);
+
+        let newNodeId = tree.currentBranchNode.id + '-' + (tree.currentBranchNode.children.length+1);
+        let n = new Node(newNodeId, 35);
+        tree.addToId(tree.currentBranchNode.id, n);
+
+        tree.branchNameToNodeDict[tree.currentBranchName] = n;
     }
 
 }

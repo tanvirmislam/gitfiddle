@@ -109,7 +109,7 @@
             },
 
             commandEntered() {
-                let commandObj = new Command(this.cmd, null);
+                let commandObj = new Command(this.cmd);
                 this.queueGitCommand(commandObj);
                 this.cmd = '';
             }
@@ -117,8 +117,14 @@
 
         watch: {
             queue() {
-                console.log('queue has changed')
-                // this.commandHandler.process(this.cmd, this.tree);
+                while (this.queue[0] !== undefined) {
+                    let top = queue.shift();
+                    
+                    console.log('Processing command: ' + top.command);
+                    
+                    this.commandHandler.process(this.cmd, this.tree);
+                }
+                this.cmd = '';
             }
         }
     }

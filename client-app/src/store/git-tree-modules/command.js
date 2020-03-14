@@ -2,13 +2,11 @@ class Command {
     #_cmd;
     #_isExecuting;
     #_hasExecuted;
-    #_snapshotBeforeExecution;
 
-    constructor(cmd, treeInfo) {
+    constructor(cmd) {
         this._cmd = cmd;
         this._isExecuting = false;
         this._hasExecuted = false;
-        this._snapshotBeforeExecution = treeInfo;
     }
 
     set isExecuting(val)    { this._isExecuting = val; }

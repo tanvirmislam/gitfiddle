@@ -7,7 +7,8 @@ class Tree {
     #_branchNameToNodeDict;
     #_info;
     #_formatter;
-    #_currentBranch;
+    #_currentBranchName;
+    #_currentBranchNode;
 
     constructor(treeFormatter) {
         this._formatter = treeFormatter;
@@ -26,11 +27,15 @@ class Tree {
             height: 0,
             levelOrder: []
         }
-        this._currentBranch = null;
+        this._currentBranchName = '';
+        this._currentBranchNode = null;
     }
 
     set root(node) {
         this._root = node;
+
+        this._currentBranchName = 'master';
+        this._currentBranchNode = node;
 
         this._nodeSet.add(node);
 
@@ -39,8 +44,6 @@ class Tree {
         for (let i = 0; i < node.branchNames.length; ++i) {
             this._branchNameToNodeDict[node.branchNames[i]] = node;
         }
-        
-        this._currentBranch = node;
 
         this.updateTreeInfo();
         this.adjust();
@@ -48,18 +51,20 @@ class Tree {
         this.formatter.margin = node.d;
     }
 
-    set currentBranch(name) {
-        if (this._branchNameToNodeDict[name] !== undefined) {
-            this._currentBranch = this._branchNameToNodeDict[name];
-        } 
-    }
-
     get root()                  { return this._root; }
     get nodeSet()               { return this._nodeSet; }
     get branchNameToNodeDict()  { return this._branchNameToNodeDict; }
     get info()                  { return this._info; }
     get formatter()             { return this._formatter; }
-    get currentBranch()         { return this._currentBranch; }
+    get currentBranchName()     { return this._currentBranchName; }
+    get currentBranchNode()     { return this._currentBranchNode; }
+
+    setCurrentBranch(name) {
+        if (this._branchNameToNodeDict[name] !== undefined) {
+            this._currentBranchName = name;
+            this._currentBranchNode = this._branchNameToNodeDict[name];
+        }
+    }
 
     updateTreeInfo() {
         if (!this._root) {
@@ -100,25 +105,14 @@ class Tree {
 
     reset() {
         this._init();
-
         let diameter = 35;
-        this.root = new Node('master', diameter);
         
-        console.log(`\nTotal Nodes: ${this._info.totalNodes}, Width: ${this._info.width}, Height: ${this._info.height} / Levels: ${this._info.levelOrder.length}`);
+        let rootNode = new Node('1', diameter);
+        rootNode.addBranch('master');
         
-        console.log(`Level order traversal:`);
-        console.log(this._info.levelOrder);
-        console.log(this._info.levelOrder[0].length);
+        this.root = rootNode;
 
-        let str = ' xyz';
-        for (let i = 0; i < this._info.levelOrder.length; ++i) {
-            for (let j = 0; j < this._info.levelOrder[i].length; ++j) {
-                str += this._info.levelOrder[i][j].name + ' ';
-            }
-            console.log(str);
-            str = ' ';
-        }
-        console.log('');
+        console.log(this.getTreeInfoStr());
     }
 
     _add(parentNode, childNode) {
@@ -191,6 +185,24 @@ class Tree {
         let n15 = new Node('15', diameter);
         let n16 = new Node('16', diameter);
         let n17 = new Node('17', diameter);
+
+        n1.addBranch('node1');
+        n2.addBranch('node2');
+        n3.addBranch('node3');
+        n4.addBranch('node4');
+        n5.addBranch('node5');
+        n6.addBranch('node6');
+        n7.addBranch('node7');
+        n8.addBranch('node8');
+        n9.addBranch('node9');
+        n10.addBranch('node10');
+        n11.addBranch('node11');
+        n12.addBranch('node12');
+        n13.addBranch('node13');
+        n14.addBranch('node14');
+        n15.addBranch('node15');
+        n16.addBranch('node16');
+        n17.addBranch('node17');
 
         this.root = n1;
         
