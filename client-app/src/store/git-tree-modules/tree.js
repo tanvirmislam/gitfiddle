@@ -57,12 +57,20 @@ class Tree {
     get info()                  { return this._info; }
     get formatter()             { return this._formatter; }
     get currentBranchName()     { return this._currentBranchName; }
-    get currentBranchNode()     { return this._currentBranchNode; }
+    get currentBranchNode()     { return this._branchNameToNodeDict[this._currentBranchName]; }
 
-    setCurrentBranch(name) {
-        if (this._branchNameToNodeDict[name] !== undefined) {
-            this._currentBranchName = name;
-            this._currentBranchNode = this._branchNameToNodeDict[name];
+    setCurrentBranch(branchName) {
+        if (this._branchNameToNodeDict[branchName] !== undefined) {
+            this._currentBranchName = branchName;
+            this._currentBranchNode = this._branchNameToNodeDict[branchName];
+        }
+    }
+
+    attachCurrentBranchToNode(branchName, nodeId) {
+        if (this._idToNodeDict[nodeId] != undefined) {
+            this._branchNameToNodeDict[branchName] = this._idToNodeDict[nodeId];
+            this._currentBranchName = branchName;
+            this._currentBranchNode = this._idToNodeDict[nodeId];
         }
     }
 
@@ -143,6 +151,26 @@ class Tree {
     addToId(parentId, childNode) {
         let parentNode = this._idToNodeDict[parentId];
         this._add(parentNode, childNode);
+    }
+
+    removeNodeWithId(nodeId) {
+        let node = this._idToNodeDict[nodeId];
+
+        if (node === undefined) {
+            return;
+        }
+
+        let parent = node.parent;
+        let childIndex = parent.children.findIndex(n => n.id === node.id);
+        parent.children.splice(childIndex, 1);
+
+        delete this._idToNodeDict[nodeId];
+        
+        this._nodeSet.forEach((n) => {
+            if (n.id === node.id) {
+                this._nodeSet.delete(n);
+            }
+        });
     }
 
     getTreeInfoStr() {

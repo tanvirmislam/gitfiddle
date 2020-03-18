@@ -70,7 +70,7 @@
 
         methods: {
             ...mapActions({
-                queueGitCommand: 'add'
+                queueGitCommand: 'queueCommand'
             }),
 
             commandStrToObj(commandStr) {
@@ -104,10 +104,6 @@
                 }
             },
 
-            popHistory() {
-                return this.history.pop();
-            },
-
             commandEntered() {
                 let commandObj = new Command(this.cmd);
                 this.queueGitCommand(commandObj);
@@ -118,11 +114,11 @@
         watch: {
             queue() {
                 while (this.queue[0] !== undefined) {
-                    let top = queue.shift();
+                    let top = this.queue.shift();
                     
                     console.log('Processing command: ' + top.command);
                     
-                    this.commandHandler.process(this.cmd, this.tree);
+                    this.commandHandler.process(top, this.tree, this.history);
                 }
                 this.cmd = '';
             }

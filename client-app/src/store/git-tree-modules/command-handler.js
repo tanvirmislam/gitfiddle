@@ -4,17 +4,30 @@ class CommandHandler {
     #_regex;
 
     constructor() {
-        this._regex = /\bgit\b ((\b(checkout -b|checkout|branch)\b \b[A-Za-z0-9]{2,}\b)|(\brebase\b \b[A-Za-z0-9]{2,}\b \b[A-Za-z0-9]{2,}\b)|(\bcommit\b))/g;
+        this._regex = /(^\bgit\b ((\b(checkout -b|checkout|branch)\b \b[A-Za-z0-9]{2,}\b)|(\brebase\b \b[A-Za-z0-9]{2,}\b \b[A-Za-z0-9]{2,}\b)|(\bcommit\b))$)|(^undo$)/g;
     }
 
-    process(input, tree) {
-        let found = input.match(this._regex);
-        if (found === null || found.length !== 1 || input !== found[0]) {
-            console.log(`CommandHandler::process error: invalid command ${input}`);
+    process(cmdObject, tree, history) {
+        let command = cmdObject.command;
+
+        let found = command.match(this._regex);
+
+        if (found === null || found.length !== 1 || command !== found[0]) {
+            console.log(`CommandHandler::process error: invalid command ${command}`);
             return;
         }
 
-        let cmdTokens = input.split(' ');
+        let cmdTokens = command.split(' ');
+        let operationType = '';
+
+        if (cmdTokens[0] === 'undo') {
+            operationType = 'undo';
+            cmdTokens = history[history.length - 1].command.split(' ');
+        }
+        else {
+            operationType = 'do';
+            history.push(cmdObject);
+        }
 
         switch (cmdTokens[1]) {
             case 'checkout':
@@ -23,14 +36,14 @@ class CommandHandler {
                     console.log(`TODO: Checkout new branch ${cmdTokens[3]}`);
                 }
                 else {
-                    this.do_checkout(tree, cmdTokens[2]);
+                    this.checkout(operationType, cmdTokens[2], tree, cmdObject, history);
                 }
                 break;
             case 'branch':
                 console.log(`TODO: Branch from ${tree.currentBranchNode.id} to ${cmdTokens[2]}`);
                 break;
             case 'commit': {
-                this.do_commit(tree);
+                this.commit(operationType, tree, cmdObject, history);
                 break;
             }
             case 'rebase':
@@ -39,22 +52,48 @@ class CommandHandler {
             default:
                 console.log(`PUSHED`);
                 break;
-        }   
+        }
     }
 
-    do_checkout(tree, branchName) {
-        tree.setCurrentBranch(branchName);
-        console.log(`Current branch set to: Name = ${tree.currentBranchName}, Node ID = ${tree.currentBranchNode.id}`);
+    checkout(operationType, branchName, tree, cmdObject, history) {
+        if (operationType === 'do') {
+            cmdObject.undoInfo['checkoutBranchName'] = tree.currentBranchName;
+            
+            tree.setCurrentBranch(branchName);
+            console.log(`Current branch set to: Name = ${tree.currentBranchName}, Node ID = ${tree.currentBranchNode.id}`);
+        }
+        else if (operationType === 'undo') {
+            let undoCmdObject = history.pop();
+            tree.setCurrentBranch(undoCmdObject.undoInfo.checkoutBranchName);
+        }
+        else {
+            console.log('Invalid chekcout command');
+        }
     }
 
-    do_commit(tree) {
-        console.log(`Committing on current branch: Name = ${tree.currentBranchName}, Node ID = ${tree.currentBranchNode.id}`);
+    commit(operationType, tree, cmdObject, history) {
+        if (operationType === 'do') {
+            cmdObject.undoInfo['checkoutBranchName'] = tree.currentBranchName;
+            cmdObject.undoInfo['checkoutNodeId'] = tree.currentBranchNode.id;
 
-        let newNodeId = tree.currentBranchNode.id + '-' + (tree.currentBranchNode.children.length+1);
-        let n = new Node(newNodeId, 35);
-        tree.addToId(tree.currentBranchNode.id, n);
+            console.log(`Committing on current branch: Name = ${tree.currentBranchName}, Node ID = ${tree.currentBranchNode.id}`);
 
-        tree.branchNameToNodeDict[tree.currentBranchName] = n;
+            let newNodeId = tree.currentBranchNode.id + '-' + (tree.currentBranchNode.children.length+1);
+            let n = new Node(newNodeId, 35);
+            tree.addToId(tree.currentBranchNode.id, n);
+
+            tree.branchNameToNodeDict[tree.currentBranchName] = n;
+            
+            cmdObject.undoInfo['removeNodeId'] = n.id;
+        }
+        else if (operationType === 'undo') {
+            let undoCmdObject = history.pop();
+            tree.attachCurrentBranchToNode(undoCmdObject.undoInfo.checkoutBranchName, undoCmdObject.undoInfo.checkoutNodeId);
+            tree.removeNodeWithId(undoCmdObject.undoInfo.removeNodeId);
+        }
+        else {
+            console.log('Invalid commit command');
+        }
     }
 
 }

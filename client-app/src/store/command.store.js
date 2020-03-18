@@ -13,16 +13,31 @@ const getters = {
 
 // MUTATIONS
 const mutations = {
-    add(state, commandObj) {
+    queueCommand(state, commandObj) {
         state.queue.push(commandObj);
+    },
+
+    addHistory(state, commandObj) {
         state.history.push(commandObj);
+    },
+
+    popHistory(state) {
+        return state.history.pop();
     }
 };
 
 // ACTIONS
 const actions = {
-    add(context, commandObj) {
-        context.commit('add', commandObj);
+    queueCommand(context, commandObj) {
+        context.commit('queueCommand', commandObj);
+    },
+
+    addHistory(context, commandObj) {
+        context.commit('addHistory', commandObj);
+    },
+
+    popHistory(context) {
+        return context.commit('pop');
     }
 };
 
