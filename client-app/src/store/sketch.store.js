@@ -4,8 +4,7 @@ import Tree from './git-tree-modules/tree';
 
 // STATE
 const state = {
-    tree: new Tree(new TreeFormatter()),
-    animationSpeed: 50
+    tree: new Tree(new TreeFormatter())
 };
 
 // GETTERS
@@ -16,7 +15,7 @@ const getters = {
     branchNameToNodeDict: state => state.tree.branchNameToNodeDict,
     treeInfo: state => state.tree.info,
     treeFormatter: state => state.tree.formatter,
-    animationSpeed: state => state.animationSpeed
+    animationSpeed: state => state.tree.animationSpeed
 };
 
 // MUTATIONS

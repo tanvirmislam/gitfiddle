@@ -53,6 +53,8 @@ class CommandHandler {
                 console.log(`PUSHED`);
                 break;
         }
+        
+        cmdObject.hasExecuted = true;
     }
 
     checkout(operationType, branchName, tree, cmdObject, history) {
@@ -89,7 +91,7 @@ class CommandHandler {
         else if (operationType === 'undo') {
             let undoCmdObject = history.pop();
             tree.attachCurrentBranchToNode(undoCmdObject.undoInfo.checkoutBranchName, undoCmdObject.undoInfo.checkoutNodeId);
-            tree.removeNodeWithId(undoCmdObject.undoInfo.removeNodeId);
+            tree.markNodeIdForDeletion(undoCmdObject.undoInfo.removeNodeId);
         }
         else {
             console.log('Invalid commit command');

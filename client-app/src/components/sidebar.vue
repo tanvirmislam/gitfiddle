@@ -7,18 +7,18 @@
             <v-list dense>
 
                 <v-subheader>Command History</v-subheader>
-                <v-list-item-group>
+                <v-list-item-group class="mb-5">
                     <v-list-item v-for="(commandObj, i) in history" :key="i">
                         <v-list-item-content>
 
                             <v-row>
-                                <v-col>
+                                <v-col cols=10>
                                     <span>{{ commandObj.command }}</span>
                                 </v-col>
                                 <v-spacer></v-spacer>
                                 <v-col align="right">
                                     <span v-if="isBeingProcessed(commandObj)"><font-awesome-icon icon="spinner" pulse /></span>
-                                    <span v-if="hasBeenProcessed(commandObj)" class="ml-2"><font-awesome-icon icon="check" /></span>
+                                    <span v-if="hasBeenProcessed(commandObj)" class="ml-2 mr-2"><font-awesome-icon icon="check" /></span>
                                 </v-col>
                             </v-row>
 
@@ -88,7 +88,7 @@
 
             isBeingProcessed(commandObj) {
                 if (commandObj !== null) {
-                    return (commandObj.hasExecuted === false && this.queue.includes(commandObj));
+                    return (commandObj.hasExecuted === false);
                 }
                 else {
                     return false;
@@ -97,7 +97,7 @@
 
             hasBeenProcessed(commandObj) {
                 if (commandObj !== null) {
-                    return (commandObj.hasExecuted === true && !this.queue.includes(commandObj));
+                    return (commandObj.hasExecuted === true);
                 }
                 else {
                     return false;
@@ -117,10 +117,8 @@
                     let top = this.queue.shift();
                     
                     console.log('Processing command: ' + top.command);
-                    
                     this.commandHandler.process(top, this.tree, this.history);
                 }
-                this.cmd = '';
             }
         }
     }
@@ -162,7 +160,7 @@
             background-color 100ms ease-out,
             margin 100ms ease-out,
             height 100ms ease-out;
-        background-color: rgba(48, 121, 244,.1);
+        background-color: rgba(197, 65, 65, 0.678);
         margin: 5px 5px 5px 0;
         border-radius: 20px;
         height: calc(100% - 10px);
@@ -170,23 +168,23 @@
     }
 
     .vb.vb-scrolling-phantom > .vb-dragger > .vb-dragger-styler {
-        background-color: rgba(48, 121, 244,.3);
+        background-color: rgba(197, 65, 65, 0.678);
     }
 
     .vb > .vb-dragger:hover > .vb-dragger-styler {
-        background-color: rgba(48, 121, 244,.5);
+        background-color: rgba(197, 65, 65, 0.678);
         margin: 0px;
         height: 100%;
     }
 
     .vb.vb-dragging > .vb-dragger > .vb-dragger-styler {
-        background-color: rgba(48, 121, 244,.5);
+        background-color: rgba(197, 65, 65, 0.678);
         margin: 0px;
         height: 100%;
     }
 
     .vb.vb-dragging-phantom > .vb-dragger > .vb-dragger-styler {
-        background-color: rgba(48, 121, 244,.5);
+        background-color: rgba(197, 65, 65, 0.678);
     }
 
 </style>

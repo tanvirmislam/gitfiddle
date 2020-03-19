@@ -9,6 +9,7 @@ class Tree {
     #_formatter;
     #_currentBranchName;
     #_currentBranchNode;
+    #_animationSpeed;
 
     constructor(treeFormatter) {
         this._formatter = treeFormatter;
@@ -29,6 +30,7 @@ class Tree {
         }
         this._currentBranchName = '';
         this._currentBranchNode = null;
+        this._animationSpeed = 10;
     }
 
     set root(node) {
@@ -51,6 +53,8 @@ class Tree {
         this.formatter.margin = node.d;
     }
 
+    set animationSpeed(spd)     { this._animationSpeed = spd; }
+
     get root()                  { return this._root; }
     get nodeSet()               { return this._nodeSet; }
     get branchNameToNodeDict()  { return this._branchNameToNodeDict; }
@@ -58,6 +62,7 @@ class Tree {
     get formatter()             { return this._formatter; }
     get currentBranchName()     { return this._currentBranchName; }
     get currentBranchNode()     { return this._branchNameToNodeDict[this._currentBranchName]; }
+    get animationSpeed()        { return this._animationSpeed; }
 
     setCurrentBranch(branchName) {
         if (this._branchNameToNodeDict[branchName] !== undefined) {
@@ -153,24 +158,29 @@ class Tree {
         this._add(parentNode, childNode);
     }
 
-    removeNodeWithId(nodeId) {
-        let node = this._idToNodeDict[nodeId];
-
-        if (node === undefined) {
-            return;
-        }
-
+    remove(node) {
         let parent = node.parent;
         let childIndex = parent.children.findIndex(n => n.id === node.id);
         parent.children.splice(childIndex, 1);
 
-        delete this._idToNodeDict[nodeId];
+        delete this._idToNodeDict[node.id];
         
         this._nodeSet.forEach((n) => {
             if (n.id === node.id) {
                 this._nodeSet.delete(n);
             }
         });
+    }
+
+    markNodeIdForDeletion(nodeId) {
+        let node = this._idToNodeDict[nodeId];
+
+        if (node === undefined) {
+            return;
+        }
+        
+        node.isAnimated = true;
+        node.isBeingCreated = false;
     }
 
     getTreeInfoStr() {

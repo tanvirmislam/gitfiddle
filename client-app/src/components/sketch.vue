@@ -37,7 +37,8 @@
                 background: 255,
                 initialStroke: 255,
                 finalStroke: 0,
-                currentStroke: 255,
+                currentStrokeForBeingCreated: 255,
+                currentStrokeForBeingDeleted: 0,
                 fill: '#DCF0EB',
                 line: 0,
                 text: '#C13719'
@@ -150,26 +151,45 @@
                     }
                     else {
                         this.drawStaticNode(sketch, node);
-
-                        if (node.parent !== null && node.parent !== node) {
-                            this.drawLineToParent(sketch, node);
-                        }
+                        this.drawLineToParent(sketch, node);
+                        
                     }
                 }
                 
             },
 
             drawAnimatingNode(sketch, node) {
-                sketch.stroke(this.colors.currentStroke);
-                sketch.noFill();
-                sketch.ellipse(node.x, node.y, node.d, node.d);
+                if (node.isBeingCreated) {
+                    sketch.stroke(this.colors.currentStrokeForBeingCreated);
+                    sketch.noFill();
+                    sketch.ellipse(node.x, node.y, node.d, node.d);
 
-                if (this.colors.currentStroke > this.colors.finalStroke) {
-                    this.colors.currentStroke = (this.colors.currentStroke - this.animationSpeed) < this.colors.finalStroke ? this.colors.finalStroke : (this.colors.currentStroke - this.animationSpeed);
+                    if (this.colors.currentStrokeForBeingCreated > this.colors.finalStroke) {
+                        let nextStrokeColor = this.colors.currentStrokeForBeingCreated - this.animationSpeed;
+                        this.colors.currentStrokeForBeingCreated = nextStrokeColor < this.colors.finalStroke ? this.colors.finalStroke : nextStrokeColor;
+                    }
+                    else {
+                        node.isAnimated = false;
+                        node.isBeingCreated = false;
+                        this.colors.currentStrokeForBeingCreated = this.colors.initialStroke;
+                    }
                 }
                 else {
-                    node.isAnimated = false;
-                    this.colors.currentStroke = this.colors.initialStroke;
+                    sketch.stroke(this.colors.currentStrokeForBeingDeleted);
+                    sketch.noFill();
+                    sketch.ellipse(node.x, node.y, node.d, node.d);
+                    
+                    this.drawLineToParent(sketch, node);
+                    
+                    if (this.colors.currentStrokeForBeingDeleted < this.colors.initialStroke) {
+                        let nextStrokeColor = this.colors.currentStrokeForBeingDeleted + this.animationSpeed;
+                        this.colors.currentStrokeForBeingDeleted = nextStrokeColor > this.colors.initialStroke ? this.colors.initialStroke : nextStrokeColor;
+                    }
+                    else {
+                        node.isAnimated = false;
+                        this.tree.remove(node);
+                        this.colors.currentStrokeForBeingDeleted = this.colors.finalStroke;
+                    }
                 }
             },
 
@@ -184,6 +204,10 @@
             },
 
             drawLineToParent(sketch, node) {
+                if (node === undefined || node === null || node.parent === null || node.parent === node) {
+                    return;
+                }
+
                 let angle = this.getAngleBetweenNodes(sketch, node, node.parent);
                 
                 let x0 = Math.floor(node.x + ( node.r * sketch.cos(angle) ));

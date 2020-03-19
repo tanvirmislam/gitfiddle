@@ -6,6 +6,8 @@ class Node {
     #_d;
     #_r;
     #_isAnimated;
+    #_isBeingCreated;
+    #_isBeingDeleted;
     #_parent;
     #_children;
 
@@ -17,6 +19,7 @@ class Node {
         this._d = diameter;
         this._r = diameter / 2.0;
         this._isAnimated = true;
+        this._isBeingCreated = true;
         this._parent = null;
         this._children = [];
     }
@@ -48,22 +51,24 @@ class Node {
         }
     }
 
-    set x(val)              { this._x = val; }
-    set y(val)              { this._y = val; }
-    set d(val)              { this._d = val; this._r = val / 2.0; }
-    set r(val)              { this._r = val; this._d = val * 2.0; }
-    set isAnimated(status)  { this._isAnimated = status; }
-    set parent(node)        { this._parent = node; }
+    set x(val)                  { this._x = val; }
+    set y(val)                  { this._y = val; }
+    set d(val)                  { this._d = val; this._r = val / 2.0; }
+    set r(val)                  { this._r = val; this._d = val * 2.0; }
+    set isAnimated(status)      { this._isAnimated = status; }
+    set isBeingCreated(status)  { this._isBeingCreated = status; }
+    set parent(node)            { this._parent = node; }
 
-    get id()            { return this._id; }
-    get branchNames()   { return this._branchNames; }
-    get x()             { return this._x; }
-    get y()             { return this._y; }
-    get d()             { return this._d; }
-    get r()             { return this._r; }
-    get isAnimated()    { return this._isAnimated; }
-    get parent()        { return this._parent; }    
-    get children()      { return this._children; }
+    get id()                { return this._id; }
+    get branchNames()       { return this._branchNames; }
+    get x()                 { return this._x; }
+    get y()                 { return this._y; }
+    get d()                 { return this._d; }
+    get r()                 { return this._r; }
+    get isAnimated()        { return this._isAnimated; }
+    get isBeingCreated()    { return this._isBeingCreated; }
+    get parent()            { return this._parent; }    
+    get children()          { return this._children; }
     
     get displayName() {
         let str = '';
