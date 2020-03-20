@@ -20,6 +20,13 @@ class TreeFormatter {
         node.y = y;
 
         if (node.children.length === 0) {
+            node.allocatedTextPosition = {
+                x: center,
+                y: y - node.r - 8,
+                width: maxX,
+                height: node.d
+            }
+
             return;
         }
 
@@ -27,6 +34,13 @@ class TreeFormatter {
         let startX = minX;
         let endX = startX + childrenSpace;
         let yPos = y + yIncrement;
+
+        node.allocatedTextPosition = {
+            x: center,
+            y: y - node.r - 8,
+            width: endX,
+            height: node.d
+        }
 
         for (let i = 0; i < node.children.length; ++i) {
             this._recursivelyAdjust(node.children[i], startX, endX, yPos, yIncrement);

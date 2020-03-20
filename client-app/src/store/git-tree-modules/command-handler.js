@@ -17,6 +17,8 @@ class CommandHandler {
             return;
         }
 
+        cmdObject.hasExecuted = false;
+
         let cmdTokens = command.split(' ');
         let operationType = '';
 
@@ -80,11 +82,10 @@ class CommandHandler {
 
             console.log(`Committing on current branch: Name = ${tree.currentBranchName}, Node ID = ${tree.currentBranchNode.id}`);
 
-            let newNodeId = tree.currentBranchNode.id + '-' + (tree.currentBranchNode.children.length+1);
-            let n = new Node(newNodeId, 35);
+            let n = new Node(tree.nextId, 35);
             tree.addToId(tree.currentBranchNode.id, n);
 
-            tree.branchNameToNodeDict[tree.currentBranchName] = n;
+            tree.switchBranch(tree.currentBranchName, tree.currentBranchNode, n);
             
             cmdObject.undoInfo['removeNodeId'] = n.id;
         }

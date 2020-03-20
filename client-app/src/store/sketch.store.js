@@ -4,7 +4,8 @@ import Tree from './git-tree-modules/tree';
 
 // STATE
 const state = {
-    tree: new Tree(new TreeFormatter())
+    tree: new Tree(new TreeFormatter()),
+    hasStarted: false
 };
 
 // GETTERS
@@ -15,7 +16,8 @@ const getters = {
     branchNameToNodeDict: state => state.tree.branchNameToNodeDict,
     treeInfo: state => state.tree.info,
     treeFormatter: state => state.tree.formatter,
-    animationSpeed: state => state.tree.animationSpeed
+    animationSpeed: state => state.tree.animationSpeed,
+    hasStarted: state => state.hasStarted
 };
 
 // MUTATIONS
@@ -34,6 +36,10 @@ const mutations = {
 
     setAnimationSpeed(state, spd) {
         state.animationSpeed = spd;
+    },
+
+    start(state) {
+        state.hasStarted = true;
     }
 };
 
@@ -53,6 +59,10 @@ const actions = {
 
     setAnimationSpeed(context, spd) {
         context.commit('setAnimationSpeed', spd);
+    },
+
+    start(context) {
+        context.commit('start');
     }
 };
 

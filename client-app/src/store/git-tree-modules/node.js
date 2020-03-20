@@ -10,6 +10,7 @@ class Node {
     #_isBeingDeleted;
     #_parent;
     #_children;
+    #_allocatedTextPosition;
 
     constructor(id, diameter) {
         this._id = id.toString();
@@ -22,6 +23,12 @@ class Node {
         this._isBeingCreated = true;
         this._parent = null;
         this._children = [];
+        this._allocatedTextPosition = {
+            x: null,
+            y: null,
+            width: null,
+            height: null
+        };
     }
 
     addChild(childNode) {
@@ -51,32 +58,26 @@ class Node {
         }
     }
 
-    set x(val)                  { this._x = val; }
-    set y(val)                  { this._y = val; }
-    set d(val)                  { this._d = val; this._r = val / 2.0; }
-    set r(val)                  { this._r = val; this._d = val * 2.0; }
-    set isAnimated(status)      { this._isAnimated = status; }
-    set isBeingCreated(status)  { this._isBeingCreated = status; }
-    set parent(node)            { this._parent = node; }
+    set x(val)                      { this._x = val; }
+    set y(val)                      { this._y = val; }
+    set d(val)                      { this._d = val; this._r = val / 2.0; }
+    set r(val)                      { this._r = val; this._d = val * 2.0; }
+    set isAnimated(status)          { this._isAnimated = status; }
+    set isBeingCreated(status)      { this._isBeingCreated = status; }
+    set parent(node)                { this._parent = node; }
+    set allocatedTextPosition(pos)  { this._allocatedTextPosition = pos; }
 
-    get id()                { return this._id; }
-    get branchNames()       { return this._branchNames; }
-    get x()                 { return this._x; }
-    get y()                 { return this._y; }
-    get d()                 { return this._d; }
-    get r()                 { return this._r; }
-    get isAnimated()        { return this._isAnimated; }
-    get isBeingCreated()    { return this._isBeingCreated; }
-    get parent()            { return this._parent; }    
-    get children()          { return this._children; }
-    
-    get displayName() {
-        let str = '';
-        for (let i = 0; i < this._branchNames.length; ++i) {
-            str += this._branchNames[i] + ', ';
-        }
-        return str.slice(0, -2);
-    }
+    get id()                        { return this._id; }
+    get branchNames()               { return this._branchNames; }
+    get x()                         { return this._x; }
+    get y()                         { return this._y; }
+    get d()                         { return this._d; }
+    get r()                         { return this._r; }
+    get isAnimated()                { return this._isAnimated; }
+    get isBeingCreated()            { return this._isBeingCreated; }
+    get parent()                    { return this._parent; }    
+    get children()                  { return this._children; }
+    get allocatedTextPosition()     { return this._allocatedTextPosition; }
 }
 
 export default Node;

@@ -18,8 +18,6 @@
 
     export default {
         data: () => ({
-            hasStarted: false,
-            
             dimensions: {
                 windowWidth: 0,
                 windowHeight: 0,
@@ -41,7 +39,7 @@
                 currentStrokeForBeingDeleted: 0,
                 fill: '#DCF0EB',
                 line: 0,
-                text: '#C13719'
+                text: '#bd3417'
             }
         }),
 
@@ -68,7 +66,8 @@
                 branchNameToNodeDict: 'branchNameToNodeDict',
                 treeInfo: 'treeInfo',
                 treeFormatter: 'treeFormatter',
-                animationSpeed: 'animationSpeed'
+                animationSpeed: 'animationSpeed',
+                hasStarted: 'hasStarted'
             }),
         },
 
@@ -82,12 +81,14 @@
             ...mapActions([
                 'setFormatterCanvasWidth',
                 'setFormatterCanvasHeight',
-                'setAnimationSpeed'
+                'setAnimationSpeed',
+                'start'
             ]),
 
             startSim() {
-                this.hasStarted = true;
+                this.start();
                 this.tree.reset();
+                this.tree.animationSpeed = 10;
             },
 
             adjustDimensions(sketch) {
@@ -152,7 +153,7 @@
                     else {
                         this.drawStaticNode(sketch, node);
                         this.drawLineToParent(sketch, node);
-                        
+                        this.drawBranchNames(sketch, node);
                     }
                 }
                 
@@ -218,6 +219,27 @@
 
                 sketch.stroke(this.colors.line);
                 sketch.line(x0, y0, x1, y1);
+            },
+
+            drawBranchNames(sketch, node) {
+                let x = node.allocatedTextPosition.x;
+                let y = node.allocatedTextPosition.y;
+                let width = node.allocatedTextPosition.width;
+                let height = node.allocatedTextPosition.height;
+                let branchNames = '';
+
+                sketch.fill(this.colors.text);
+                sketch.noStroke();
+                sketch.rectMode(sketch.CENTER);
+
+                for (let i = 0; i < node.branchNames.length; ++i) {
+                    if (this.tree.currentBranchName === node.branchNames[i]) {
+                        branchNames += '*';
+                    }
+                    branchNames += (node.branchNames[i] + ' ');
+                }
+
+                sketch.text(branchNames, x, y, width, height);
             },
 
             getAngleBetweenNodes(sketch, node1, node2) {

@@ -10,6 +10,7 @@ class Tree {
     #_currentBranchName;
     #_currentBranchNode;
     #_animationSpeed;
+    #_nextId;
 
     constructor(treeFormatter) {
         this._formatter = treeFormatter;
@@ -30,7 +31,8 @@ class Tree {
         }
         this._currentBranchName = '';
         this._currentBranchNode = null;
-        this._animationSpeed = 10;
+        this._animationSpeed = 40;
+        this._nextId = 1;
     }
 
     set root(node) {
@@ -63,12 +65,19 @@ class Tree {
     get currentBranchName()     { return this._currentBranchName; }
     get currentBranchNode()     { return this._branchNameToNodeDict[this._currentBranchName]; }
     get animationSpeed()        { return this._animationSpeed; }
+    get nextId()                { return ++this._nextId; }
 
     setCurrentBranch(branchName) {
         if (this._branchNameToNodeDict[branchName] !== undefined) {
             this._currentBranchName = branchName;
             this._currentBranchNode = this._branchNameToNodeDict[branchName];
         }
+    }
+     
+    switchBranch(branchName, fromNode, toNode) {
+        toNode.branchNames.push(branchName);
+        fromNode.branchNames.splice(fromNode.branchNames.indexOf(branchName), 1);
+        this._branchNameToNodeDict[branchName] = toNode;
     }
 
     attachCurrentBranchToNode(branchName, nodeId) {
