@@ -30,7 +30,7 @@
         </div>
 
         <v-footer absolute padless color='#363636'>
-            <v-text-field v-model="cmd" label="Command" outlined height="40px" class="mt-3 ml-4 mr-4" @keydown.enter="commandEntered"></v-text-field>
+            <v-text-field v-model="cmd" label="Command" :rules="[isAcceptingCommands]" @keydown.enter="commandEntered" outlined height="40px" class="mt-3 ml-4 mr-4" autocomplete="off"></v-text-field>
         </v-footer>
         
     </v-navigation-drawer>
@@ -54,7 +54,8 @@
                 'sidebarWidth',
                 'tree',
                 'queue',
-                'history'
+                'history',
+                'hasStarted'
             ]),
 
             status: {
@@ -72,6 +73,10 @@
             ...mapActions({
                 queueGitCommand: 'queueCommand'
             }),
+
+            isAcceptingCommands() {
+                return this.hasStarted || 'Start the Simulation';
+            },
 
             commandStrToObj(commandStr) {
                 let commandObj = null;
@@ -105,9 +110,11 @@
             },
 
             commandEntered() {
-                let commandObj = new Command(this.cmd);
-                this.queueGitCommand(commandObj);
-                this.cmd = '';
+                if (this.hasStarted) {
+                    let commandObj = new Command(this.cmd);
+                    this.queueGitCommand(commandObj);
+                    this.cmd = '';   
+                }
             }
         },
 

@@ -82,10 +82,16 @@ class Tree {
 
     attachCurrentBranchToNode(branchName, nodeId) {
         if (this._idToNodeDict[nodeId] != undefined) {
+            this._idToNodeDict[nodeId].branchNames.push(branchName);
             this._branchNameToNodeDict[branchName] = this._idToNodeDict[nodeId];
+
             this._currentBranchName = branchName;
             this._currentBranchNode = this._idToNodeDict[nodeId];
         }
+    }
+
+    getNodeFromId(nodeId) {
+        return this._idToNodeDict[nodeId];
     }
 
     updateTreeInfo() {
@@ -233,6 +239,7 @@ class Tree {
         let n16 = new Node('16', diameter);
         let n17 = new Node('17', diameter);
 
+        /*
         n1.addBranch('node1');
         n2.addBranch('node2');
         n3.addBranch('node3');
@@ -250,6 +257,7 @@ class Tree {
         n15.addBranch('node15');
         n16.addBranch('node16');
         n17.addBranch('node17');
+        */
 
         this.root = n1;
         
