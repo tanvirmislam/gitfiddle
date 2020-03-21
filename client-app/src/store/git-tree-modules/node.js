@@ -8,7 +8,7 @@ class Node {
     #_isAnimated;
     #_isBeingCreated;
     #_isBeingDeleted;
-    #_parent;
+    #_parents;
     #_children;
     #_allocatedTextPosition;
 
@@ -21,7 +21,7 @@ class Node {
         this._r = diameter / 2.0;
         this._isAnimated = true;
         this._isBeingCreated = true;
-        this._parent = null;
+        this._parents = [];
         this._children = [];
         this._allocatedTextPosition = {
             x: null,
@@ -31,30 +31,39 @@ class Node {
         };
     }
 
+    addParent(node) {
+        if (!this._parents.includes(node)) {
+            this._parents.push(node);
+        }
+    }
+
     addChild(childNode) {
         if (childNode === null) {
             console.log(`Node::addChild error: null child node provided`);    
             return;
         }
-        this._children.push(childNode);
-        childNode.parent = this;
+
+        if (!this._children.includes(childNode)) {
+            this._children.push(childNode);
+            childNode.addParent(this);
+        }
     }
 
     addBranch(name) {
-        if (this._branchNames.includes(name)) {
-            console.log(`Node::addBranch error: branch ${name} already exists in node ${this._id}`);
-            return;
+        if (!this._branchNames.includes(name)) {
+            this._branchNames.push(name);
         }
+    }
 
-        this._branchNames.push(name);
+    removeParent(node) {
+        if (this._parents.includes(node)) {
+            this._parents.splice(this._parents.indexOf(node), 1);
+        }
     }
 
     removeBranch(name) {
         if (this._branchNames.includes(name)) {
-            this._branchNames.splice( this._branchNames.indexOf(name), 1 );
-        }
-        else {
-            console.log(`Node::removeBranch warning: ${name} does not exists in the node`);
+            this._branchNames.splice(this._branchNames.indexOf(name), 1);
         }
     }
 
@@ -64,7 +73,6 @@ class Node {
     set r(val)                      { this._r = val; this._d = val * 2.0; }
     set isAnimated(status)          { this._isAnimated = status; }
     set isBeingCreated(status)      { this._isBeingCreated = status; }
-    set parent(node)                { this._parent = node; }
     set allocatedTextPosition(pos)  { this._allocatedTextPosition = pos; }
 
     get id()                        { return this._id; }
@@ -75,7 +83,7 @@ class Node {
     get r()                         { return this._r; }
     get isAnimated()                { return this._isAnimated; }
     get isBeingCreated()            { return this._isBeingCreated; }
-    get parent()                    { return this._parent; }    
+    get parents()                    { return this._parents; }    
     get children()                  { return this._children; }
     get allocatedTextPosition()     { return this._allocatedTextPosition; }
 }

@@ -152,8 +152,8 @@
                     }
                     else {
                         this.drawStaticNode(sketch, node);
-                        this.drawLineToParent(sketch, node);
                         this.drawBranchNames(sketch, node);
+                        this.drawLineToParents(sketch, node);
                     }
                 }
                 
@@ -180,7 +180,7 @@
                     sketch.noFill();
                     sketch.ellipse(node.x, node.y, node.d, node.d);
                     
-                    this.drawLineToParent(sketch, node);
+                    this.drawLineToParents(sketch, node);
                     
                     if (this.colors.currentStrokeForBeingDeleted < this.colors.initialStroke) {
                         let nextStrokeColor = this.colors.currentStrokeForBeingDeleted + this.animationSpeed;
@@ -189,6 +189,7 @@
                     else {
                         node.isAnimated = false;
                         this.tree.remove(node);
+                        this.tree.adjust();
                         this.colors.currentStrokeForBeingDeleted = this.colors.finalStroke;
                     }
                 }
@@ -201,24 +202,31 @@
 
                 sketch.fill(this.colors.text);
                 sketch.noStroke();
+                sketch.textSize(10);
                 sketch.text(node.id, node.x, node.y);
             },
 
-            drawLineToParent(sketch, node) {
-                if (node === undefined || node === null || node.parent === null || node.parent === node) {
+            drawLineToParents(sketch, node) {
+                if (node === undefined || node === null) {
                     return;
                 }
 
-                let angle = this.getAngleBetweenNodes(sketch, node, node.parent);
+                for (let i = 0; i < node.parents.length; ++i) {
+                    if (node.parents[i] === null || node.parents[i] === node) {
+                        return;
+                    }
+
+                    let angle = this.getAngleBetweenNodes(sketch, node, node.parents[i]);
                 
-                let x0 = Math.floor(node.x + ( node.r * sketch.cos(angle) ));
-                let y0 = Math.floor(node.y - ( node.r * sketch.sin(angle) ));
+                    let x0 = Math.floor(node.x + ( node.r * sketch.cos(angle) ));
+                    let y0 = Math.floor(node.y - ( node.r * sketch.sin(angle) ));
 
-                let x1 = Math.floor(node.parent.x + ( node.parent.r * sketch.cos(angle + sketch.PI) ));
-                let y1 = Math.floor(node.parent.y - ( node.parent.r * sketch.sin(angle + sketch.PI) ));
+                    let x1 = Math.floor(node.parents[i].x + ( node.parents[i].r * sketch.cos(angle + sketch.PI) ));
+                    let y1 = Math.floor(node.parents[i].y - ( node.parents[i].r * sketch.sin(angle + sketch.PI) ));
 
-                sketch.stroke(this.colors.line);
-                sketch.line(x0, y0, x1, y1);
+                    sketch.stroke(this.colors.line);
+                    sketch.line(x0, y0, x1, y1);
+                }
             },
 
             drawBranchNames(sketch, node) {
@@ -236,9 +244,12 @@
                     if (this.tree.currentBranchName === node.branchNames[i]) {
                         branchNames += '*';
                     }
-                    branchNames += (node.branchNames[i] + ' ');
+                    branchNames += (node.branchNames[i] + ', ');
                 }
 
+                branchNames = branchNames.slice(0, -2);
+
+                sketch.textSize(12);
                 sketch.text(branchNames, x, y, width, height);
             },
 

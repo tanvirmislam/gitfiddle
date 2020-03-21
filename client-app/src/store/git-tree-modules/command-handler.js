@@ -4,7 +4,7 @@ class CommandHandler {
     #_regex;
 
     constructor() {
-        this._regex = /(^\bgit\b ((\b(checkout -b|checkout|branch)\b \b[A-Za-z0-9]{2,}\b)|(\brebase\b \b[A-Za-z0-9]{2,}\b \b[A-Za-z0-9]{2,}\b)|(\bcommit\b))$)|(^undo$)/g;
+        this._regex = /(^\bgit\b ((\b(checkout -b|checkout|branch|merge)\b \b[A-Za-z0-9]{2,}\b)|(\brebase\b \b[A-Za-z0-9]{2,}\b \b[A-Za-z0-9]{2,}\b)|(\bcommit\b))$)|(^undo$)/g;
     }
 
     process(cmdObject, tree, history) {
@@ -32,6 +32,11 @@ class CommandHandler {
         }
 
         switch (cmdTokens[1]) {
+            case 'branch': {
+                this.branch(operationType, cmdTokens[2], tree, cmdObject, history);
+                break;
+            }
+
             case 'checkout': {
                 if (cmdTokens[2] === '-b') {
                     console.log(`TODO: Branch from ${tree.currentBranchNode.id} to ${cmdTokens[3]}`);
@@ -43,18 +48,18 @@ class CommandHandler {
                 break;
             }
 
-            case 'branch': {
-                this.branch(operationType, cmdTokens[2], tree, cmdObject, history);
-                break;
-            }
-
             case 'commit': {
                 this.commit(operationType, tree, cmdObject, history);
                 break;
             }
 
+            case 'merge': {
+                this.merge(operationType, cmdTokens[2], tree, cmdObject, history);
+                break;
+            }
+
             case 'rebase': {
-                console.log(`Rebase to ${cmdTokens[2]} from ${cmdTokens[3]}`);
+                console.log(`TODO: Rebase to ${cmdTokens[2]} from ${cmdTokens[3]}`);
                 break;
             }
 
@@ -67,20 +72,39 @@ class CommandHandler {
         cmdObject.hasExecuted = true;
     }
 
-    checkout(operationType, branchName, tree, cmdObject, history) {
+    branch(operationType, branchName, tree, cmdObject, history) {
         switch (operationType) {
             case 'do': {
-                cmdObject.undoInfo['checkoutBranchName'] = tree.currentBranchName;
-                tree.setCurrentBranch(branchName);
-                console.log(`Current branch set to: Name = ${tree.currentBranchName}, Node ID = ${tree.currentBranchNode.id}`);
-
+                cmdObject.undoInfo['nodeId'] = tree.currentBranchNode.id;
+                cmdObject.undoInfo['branchName'] = branchName;
+                tree.addBranchToNode(tree.currentBranchNode, branchName);
                 break;
             }
 
             case 'undo': {
                 let undoCmdObject = history.pop();
-                tree.setCurrentBranch(undoCmdObject.undoInfo.checkoutBranchName);
+                tree.removeBranchFromNodeId(undoCmdObject.undoInfo['nodeId'], undoCmdObject.undoInfo['branchName']);
+                break;
+            }
             
+            default: {
+                console.log('Invalid branch command');
+                break;
+            }
+        }
+    }
+
+    checkout(operationType, branchName, tree, cmdObject, history) {
+        switch (operationType) {
+            case 'do': {
+                cmdObject.undoInfo['branchName'] = tree.currentBranchName;
+                tree.setCurrentBranch(branchName);
+                break;
+            }
+
+            case 'undo': {
+                let undoCmdObject = history.pop();
+                tree.setCurrentBranch(undoCmdObject.undoInfo['branchName']);
                 break;
             }
             
@@ -94,25 +118,24 @@ class CommandHandler {
     commit(operationType, tree, cmdObject, history) {
         switch (operationType) {
             case 'do': {
+                let newNode = new Node(tree.nextId, 35);
+
                 cmdObject.undoInfo['checkoutBranchName'] = tree.currentBranchName;
                 cmdObject.undoInfo['checkoutNodeId'] = tree.currentBranchNode.id;
-
-                console.log(`Committing on current branch: Name = ${tree.currentBranchName}, Node ID = ${tree.currentBranchNode.id}`);
-
-                let n = new Node(tree.nextId, 35);
-                tree.addToId(tree.currentBranchNode.id, n);
-
-                tree.switchBranch(tree.currentBranchName, tree.currentBranchNode, n);
+                cmdObject.undoInfo['removeNodeId'] = newNode.id;
                 
-                cmdObject.undoInfo['removeNodeId'] = n.id;
+                tree.addChildToNodeId(tree.currentBranchNode.id, newNode);
+                tree.switchBranch(tree.currentBranchName, tree.currentBranchNode, newNode);
 
                 break;
             }
 
             case 'undo': {
                 let undoCmdObject = history.pop();
-                tree.attachCurrentBranchToNode(undoCmdObject.undoInfo.checkoutBranchName, undoCmdObject.undoInfo.checkoutNodeId);
-                tree.markNodeIdForDeletion(undoCmdObject.undoInfo.removeNodeId);
+
+                tree.attachBranchToNode(undoCmdObject.undoInfo['checkoutBranchName'], undoCmdObject.undoInfo['checkoutNodeId']);
+                tree.setCurrentBranch(undoCmdObject.undoInfo['checkoutBranchName']);
+                tree.markNodeIdForDeletion(undoCmdObject.undoInfo['removeNodeId']);
                 
                 break;
             }
@@ -120,35 +143,37 @@ class CommandHandler {
             default: {
                 console.log('Invalid commit command');
                 break;
-        
             }
-    
         }
     }
 
-    branch(operationType, branchName, tree, cmdObject, history) {
+    merge(operationType, mergeWithBranchName, tree, cmdObject, history) {
         switch (operationType) {
             case 'do': {
-                let node = tree.currentBranchNode;
-                node.addBranch(branchName);
-                
+                let mergeWithNode = tree.getNodeFromBranchName(mergeWithBranchName);
+
+                if (mergeWithNode !== undefined) {
+                    cmdObject.undoInfo['removeParentNodeId'] = mergeWithNode.id;
+                    this.commit('do', tree, cmdObject, history);
+                    tree.currentBranchNode.addParent(mergeWithNode);
+                }
+
                 break;
             }
 
             case 'undo': {
-                console.log('TODO: Undo branch');
+                tree.currentBranchNode.removeParent(cmdObject.undoInfo['removeParentNodeId']);
+                this.commit('undo', tree, cmdObject, history);
                 break;
             }
-            
+
             default: {
-                console.log('Invalid branch command');
-                console.log(tree);
-                console.log(cmdObject);
-                console.log(history);
+                console.log('Invalid merge command');
                 break;
             }
         }
     }
+    
 }
 
 export default CommandHandler;

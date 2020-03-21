@@ -7,12 +7,12 @@
             <v-list dense>
 
                 <v-subheader>Command History</v-subheader>
-                <v-list-item-group class="mb-5">
+                <v-list-item-group class="mb-10">
                     <v-list-item v-for="(commandObj, i) in history" :key="i">
                         <v-list-item-content>
 
                             <v-row>
-                                <v-col cols=10>
+                                <v-col cols=8>
                                     <span>{{ commandObj.command }}</span>
                                 </v-col>
                                 <v-spacer></v-spacer>
@@ -30,7 +30,7 @@
         </div>
 
         <v-footer absolute padless color='#363636'>
-            <v-text-field v-model="cmd" label="Command" :rules="[isAcceptingCommands]" @keydown.enter="commandEntered" outlined height="40px" class="mt-3 ml-4 mr-4" autocomplete="off"></v-text-field>
+            <v-text-field v-model="cmd" label="Command" :rules="[isAcceptingCommands]" @keydown.enter="commandEntered" outlined height="40px" class="ml-4 mr-4" autocomplete="off"></v-text-field>
         </v-footer>
         
     </v-navigation-drawer>
