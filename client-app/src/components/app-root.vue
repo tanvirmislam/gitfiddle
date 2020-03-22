@@ -1,32 +1,25 @@
 <template>
-    <v-app>
-        
-        <nav>
-            <div>
-                <menubar />
-            </div>
+    <div id="app">
+        <v-app>
+            <nav>
+                <div> <menubar /> </div>
+                <div> <sidebar /> </div>
+            </nav>
 
-            <div>
-                <sidebar />
-            </div>
-        </nav>
+            <v-content>
+                <v-container class="my-4">
+                    <router-view></router-view>
+                </v-container>
+            </v-content>
 
-        <v-content>
-            <v-container class="my-4">
-                
-                <router-view></router-view>
-                
-            </v-container>
-        </v-content>
+            <v-divider></v-divider>
 
-        <v-divider></v-divider>
-
-        <v-footer padless>
-            <footer-row />
-        </v-footer>
-
-
-    </v-app>
+            <v-footer dark padless>
+                <footer-row />
+            </v-footer>
+        </v-app>
+    </div>
+    
 </template>
 
 <script>
@@ -50,3 +43,7 @@
         }
     }
 </script>
+
+<style>
+
+</style>

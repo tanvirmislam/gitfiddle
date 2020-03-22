@@ -31,7 +31,7 @@ class Tree {
         }
         this._currentBranchName = '';
         this._currentBranchNode = null;
-        this._animationSpeed = 30;
+        this._animationSpeed = 20;
         this._nextId = 1;
     }
 
@@ -258,48 +258,39 @@ class Tree {
         let n16 = new Node('16', diameter);
         let n17 = new Node('17', diameter);
         let n18 = new Node('18', diameter);
-        let n19 = new Node('19', diameter);
-        let n20 = new Node('20', diameter);
-        let n21 = new Node('21', diameter);
-        let n22 = new Node('22', diameter);
-        let n23 = new Node('23', diameter);
-        let n24 = new Node('24', diameter);
-
+        
         this.root = n1;
         
         this.addChildToNodeId('1',  n2);
         this.addChildToNodeId('1',  n3);
-        this.addChildToNodeId('2',  n6);
-        this.addChildToNodeId('2',  n8);
-        this.addChildToNodeId('3',  n10);
-        this.addChildToNodeId('6',  n7);
-        this.addChildToNodeId('3',  n4);
-        this.addChildToNodeId('3',  n9);
-        this.addChildToNodeId('3',  n5);
-        this.addChildToNodeId('3',  n11);
-        this.addChildToNodeId('11', n12);
-        this.addChildToNodeId('11', n13);
-        this.addChildToNodeId('4',  n14);
-        this.addChildToNodeId('4',  n15);
-        this.addChildToNodeId('4',  n16);
-        this.addChildToNodeId('12', n17);
-        this.addChildToNodeId('7',  n18);
-        this.addChildToNodeId('7',  n22);
-        this.addChildToNodeId('14', n19);
-        this.addChildToNodeId('17', n20);
-        this.addChildToNodeId('20', n21);
-        this.addChildToNodeId('18', n23);
-        this.addChildToNodeId('23', n24);
 
-        this.getNodeFromId('7').addParent(this.getNodeFromId('8'));
-        this.getNodeFromId('19').addParent(this.getNodeFromId('10'));
-        this.getNodeFromId('12').addParent(this.getNodeFromId('5'));
-        this.getNodeFromId('17').addParent(this.getNodeFromId('13'));
-        this.getNodeFromId('20').addParent(this.getNodeFromId('9'));
-        this.getNodeFromId('21').addParent(this.getNodeFromId('22'));
-        this.getNodeFromId('23').addParent(this.getNodeFromId('22'));
+        this.addChildToNodeId('2', n4);
+        this.addChildToNodeId('2', n5);
+        this.addChildToNodeId('3', n6);
+        this.addChildToNodeId('3', n7);
+        this.addChildToNodeId('3', n8);
+        this.addChildToNodeId('3', n9);
 
-        console.log(this.getTreeInfoStr());
+        this.addChildToNodeId('4', n10);
+        this.addChildToNodeId('7', n11);
+        this.addChildToNodeId('7', n12);
+        this.addChildToNodeId('9', n13);
+
+        this.addChildToNodeId('10', n14);
+        this.addChildToNodeId('12', n15);
+        this.addChildToNodeId('13', n16);
+
+        this.addChildToNodeId('15', n17);
+
+        this.addChildToNodeId('17', n18);
+
+        this.getNodeFromId('10').addParent(this.getNodeFromId('5'));
+        this.getNodeFromId('15').addParent(this.getNodeFromId('11'));
+        this.getNodeFromId('16').addParent(this.getNodeFromId('8'));
+        this.getNodeFromId('17').addParent(this.getNodeFromId('16'));
+        this.getNodeFromId('18').addParent(this.getNodeFromId('14'));
+
+        // console.log(this.getTreeInfoStr());
     }
 
 }
