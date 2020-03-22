@@ -5,7 +5,6 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon server/index.js",
-    "build": "cd ./client-app && npm run build && cd ..",
     "dev": "nodemon server/index.js"
   },
   "keywords": [
