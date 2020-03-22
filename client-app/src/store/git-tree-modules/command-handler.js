@@ -18,7 +18,7 @@ class CommandHandler {
 
         let cmdTokens = cmd.split(' ');
         
-        if (cmdTokens.length === 1 || cmdTokens.length === 3) {
+        if (cmdTokens.length <= 3) {
             choppedCommands.push(cmd);
         }
         else {
