@@ -30,7 +30,7 @@
         </div>
 
         <v-footer absolute padless color='#363636'>
-            <v-text-field v-model="cmd" label="Command" :rules="[isAcceptingCommands]" @keydown.enter="commandEntered" outlined height="40px" class="ml-4 mr-4" autocomplete="off"></v-text-field>
+            <v-text-field v-model="cmd" label="Command" :rules="[isAcceptingCommands, isCommandValid]" @keydown.enter="commandEntered" outlined height="40px" class="ml-4 mr-4" autocomplete="off"></v-text-field>
         </v-footer>
         
     </v-navigation-drawer>
@@ -46,7 +46,9 @@
     export default {
         data: () => ({
             cmd: '',
-            commandHandler: new CommandHandler()
+            commandHandler: new CommandHandler(),
+            isNoCommandEntered: true,
+            wasLastCommandValid: false
         }),
 
         computed: {
@@ -76,6 +78,10 @@
 
             isAcceptingCommands() {
                 return this.hasStarted || 'Start the Simulation';
+            },
+
+            isCommandValid() {
+                return (this.isNoCommandEntered || this.wasLastCommandValid) || 'Invalid Command';
             },
 
             commandStrToObj(commandStr) {
@@ -111,9 +117,14 @@
 
             commandEntered() {
                 if (this.hasStarted) {
-                    let commandObj = new Command(this.cmd);
-                    this.queueGitCommand(commandObj);
-                    this.cmd = '';   
+                    let commands = this.commandHandler.chopMergedCommand(this.cmd.trim());
+                    
+                    for (let i = 0; i < commands.length; ++i) {
+                        let commandObj = new Command(commands[i]);
+                        this.queueGitCommand(commandObj);
+                    }
+                    
+                    this.cmd = '';
                 }
             }
         },
@@ -122,9 +133,9 @@
             queue() {
                 while (this.queue[0] !== undefined) {
                     let top = this.queue.shift();
-                    
-                    console.log('Processing command: ' + top.command);
-                    this.commandHandler.process(top, this.tree, this.history);
+                    let status = this.commandHandler.process(top, this.tree, this.history);
+                    this.wasLastCommandValid = status;
+                    this.isNoCommandEntered = false;
                 }
             }
         }

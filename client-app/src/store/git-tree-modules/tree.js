@@ -238,7 +238,6 @@ class Tree {
     }
 
     _buildDemoTree() {
-        console.log(`*** Building Demo Tree ***`);
         let diameter = 35;
         let n1  = new Node('1',  diameter);
         let n2  = new Node('2',  diameter);
@@ -289,8 +288,6 @@ class Tree {
         this.getNodeFromId('16').addParent(this.getNodeFromId('8'));
         this.getNodeFromId('17').addParent(this.getNodeFromId('16'));
         this.getNodeFromId('18').addParent(this.getNodeFromId('14'));
-
-        // console.log(this.getTreeInfoStr());
     }
 
 }

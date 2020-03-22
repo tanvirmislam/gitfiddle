@@ -132,14 +132,9 @@
                 sketch.textAlign(sketch.CENTER, sketch.CENTER);
 
                 window.addEventListener('resize', () => {
-                    console.log('windowResized');
+                    console.log('EventListener::windowResized');
                     this.adjustDimensions(sketch);
                 });
-
-                // console.log('Nodes: ');
-                // for (let node of this.nodeSet) {
-                //     console.log(node.id);
-                // }
             },
 
             draw(sketch) {

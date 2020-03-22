@@ -7,14 +7,39 @@ class CommandHandler {
         this._regex = /(^\bgit\b ((\b(checkout -b|checkout|branch|merge)\b \b[A-Za-z0-9]{2,}\b)|(\brebase\b \b[A-Za-z0-9]{2,}\b \b[A-Za-z0-9]{2,}\b)|(\bcommit\b))$)|(^undo$)/g;
     }
 
+    chopMergedCommand(cmd) {
+        let choppedCommands = [];
+
+        let found = cmd.match(this._regex);
+        if (found === null || found.length !== 1 || cmd !== found[0]) {
+            console.log(`CommandHandler error: invalid command ${cmd}`);
+            return choppedCommands;
+        }
+
+        let cmdTokens = cmd.split(' ');
+        
+        if (cmdTokens.length === 1 || cmdTokens.length === 3) {
+            choppedCommands.push(cmd);
+        }
+        else {
+            if (cmdTokens[1] === 'checkout') {
+                if (cmdTokens[2] === '-b') {
+                    choppedCommands.push(`git branch ${cmdTokens[3]}`);
+                }
+                choppedCommands.push(`git checkout ${cmdTokens[3]}`);
+            }
+        }
+        
+        return choppedCommands;
+    }
+
     process(cmdObject, tree, history) {
         let command = cmdObject.command;
 
         let found = command.match(this._regex);
-
         if (found === null || found.length !== 1 || command !== found[0]) {
-            console.log(`CommandHandler::process error: invalid command ${command}`);
-            return;
+            console.log(`CommandHandler error: invalid command ${command}`);
+            return false;
         }
 
         cmdObject.hasExecuted = false;
@@ -23,6 +48,9 @@ class CommandHandler {
         let operationType = '';
 
         if (cmdTokens[0] === 'undo') {
+            if (history.length === 0) {
+                return false;
+            }
             operationType = 'undo';
             cmdTokens = history[history.length - 1].command.split(' ');
         }
@@ -38,13 +66,7 @@ class CommandHandler {
             }
 
             case 'checkout': {
-                if (cmdTokens[2] === '-b') {
-                    console.log(`TODO: Branch from ${tree.currentBranchNode.id} to ${cmdTokens[3]}`);
-                    console.log(`TODO: Checkout new branch ${cmdTokens[3]}`);
-                }
-                else {
-                    this.checkout(operationType, cmdTokens[2], tree, cmdObject, history);
-                }
+                this.checkout(operationType, cmdTokens[2], tree, cmdObject, history);
                 break;
             }
 
@@ -70,6 +92,7 @@ class CommandHandler {
         }
         
         cmdObject.hasExecuted = true;
+        return true;
     }
 
     branch(operationType, branchName, tree, cmdObject, history) {
@@ -173,7 +196,6 @@ class CommandHandler {
             }
         }
     }
-    
 }
 
 export default CommandHandler;
