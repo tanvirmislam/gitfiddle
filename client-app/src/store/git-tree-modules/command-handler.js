@@ -7,49 +7,41 @@ class CommandHandler {
         this._regex = /(^\b(git|Git)\b ((\b(checkout -b|checkout|branch|merge)\b \b[A-Za-z0-9]{2,}\b)|(\brebase\b \b[A-Za-z0-9]{2,}\b \b[A-Za-z0-9]{2,}\b)|(\bcommit\b))$)|(^undo$)/g;
     }
 
-    chopMergedCommand(cmd) {
-        let choppedCommands = [];
-
+    getValidCommands(cmd) {
         let found = cmd.match(this._regex);
         if (found === null || found.length !== 1 || cmd !== found[0]) {
             console.log(`CommandHandler error: invalid command ${cmd}`);
-            return choppedCommands;
+            return [];
         }
 
+        let validCommands = [];
         let cmdTokens = cmd.split(' ');
         
         if (cmdTokens.length <= 3) {
-            choppedCommands.push(cmd);
+            validCommands.push(cmd);
         }
         else {
             if (cmdTokens[1] === 'checkout') {
                 if (cmdTokens[2] === '-b') {
-                    choppedCommands.push(`${cmdTokens[0]} branch ${cmdTokens[3]}`);
+                    validCommands.push(`${cmdTokens[0]} branch ${cmdTokens[3]}`);
                 }
-                choppedCommands.push(`${cmdTokens[0]} checkout ${cmdTokens[3]}`);
+                validCommands.push(`${cmdTokens[0]} checkout ${cmdTokens[3]}`);
             }
         }
         
-        return choppedCommands;
+        return validCommands;
     }
 
     process(cmdObject, tree, history) {
-        let command = cmdObject.command;
-
-        let found = command.match(this._regex);
-        if (found === null || found.length !== 1 || command !== found[0]) {
-            console.log(`CommandHandler error: invalid command ${command}`);
-            return false;
-        }
-
         cmdObject.hasExecuted = false;
 
+        let command = cmdObject.command;
         let cmdTokens = command.split(' ');
         let operationType = '';
 
         if (cmdTokens[0] === 'undo') {
             if (history.length === 0) {
-                return false;
+                return;
             }
             operationType = 'undo';
             cmdTokens = history[history.length - 1].command.split(' ');
@@ -86,13 +78,11 @@ class CommandHandler {
             }
 
             default: {
-                console.log(`PUSHED`);
                 break;
             }
         }
         
         cmdObject.hasExecuted = true;
-        return true;
     }
 
     branch(operationType, branchName, tree, cmdObject, history) {
@@ -105,8 +95,8 @@ class CommandHandler {
             }
 
             case 'undo': {
-                let undoCmdObject = history.pop();
-                tree.removeBranchFromNodeId(undoCmdObject.undoInfo['nodeId'], undoCmdObject.undoInfo['branchName']);
+                let poppedCmdObject = history.pop();
+                tree.removeBranchFromNodeId(poppedCmdObject.undoInfo['nodeId'], poppedCmdObject.undoInfo['branchName']);
                 break;
             }
             
@@ -126,8 +116,8 @@ class CommandHandler {
             }
 
             case 'undo': {
-                let undoCmdObject = history.pop();
-                tree.setCurrentBranch(undoCmdObject.undoInfo['branchName']);
+                let poppedCmdObject = history.pop();
+                tree.setCurrentBranch(poppedCmdObject.undoInfo['branchName']);
                 break;
             }
             
@@ -154,11 +144,11 @@ class CommandHandler {
             }
 
             case 'undo': {
-                let undoCmdObject = history.pop();
+                let poppedCmdObject = history.pop();
 
-                tree.attachBranchToNode(undoCmdObject.undoInfo['checkoutBranchName'], undoCmdObject.undoInfo['checkoutNodeId']);
-                tree.setCurrentBranch(undoCmdObject.undoInfo['checkoutBranchName']);
-                tree.markNodeIdForDeletion(undoCmdObject.undoInfo['removeNodeId']);
+                tree.attachBranchToNode(poppedCmdObject.undoInfo['checkoutBranchName'], poppedCmdObject.undoInfo['checkoutNodeId']);
+                tree.setCurrentBranch(poppedCmdObject.undoInfo['checkoutBranchName']);
+                tree.markNodeIdForDeletion(poppedCmdObject.undoInfo['removeNodeId']);
                 
                 break;
             }

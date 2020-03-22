@@ -117,14 +117,21 @@
 
             commandEntered() {
                 if (this.hasStarted) {
-                    let commands = this.commandHandler.chopMergedCommand(this.cmd.trim());
+                    let commands = this.commandHandler.getValidCommands(this.cmd.trim());
                     
-                    for (let i = 0; i < commands.length; ++i) {
-                        let commandObj = new Command(commands[i]);
-                        this.queueGitCommand(commandObj);
+                    if (commands.length === 0) {
+                        this.wasLastCommandValid = false;
+                    }
+                    else {
+                        this.wasLastCommandValid = true;
+                        for (let i = 0; i < commands.length; ++i) {
+                            let commandObj = new Command(commands[i]);
+                            this.queueGitCommand(commandObj);
+                        }
                     }
                     
                     this.cmd = '';
+                    this.isNoCommandEntered = false;
                 }
             }
         },
@@ -133,9 +140,7 @@
             queue() {
                 while (this.queue[0] !== undefined) {
                     let top = this.queue.shift();
-                    let status = this.commandHandler.process(top, this.tree, this.history);
-                    this.wasLastCommandValid = status;
-                    this.isNoCommandEntered = false;
+                    this.commandHandler.process(top, this.tree, this.history);
                 }
             }
         }
