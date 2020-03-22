@@ -4,7 +4,7 @@ class CommandHandler {
     #_regex;
 
     constructor() {
-        this._regex = /(^(\bgit\b|\bGit\b) ((\b(checkout -b|checkout|branch|merge)\b \b[A-Za-z0-9]{2,}\b)|(\brebase\b \b[A-Za-z0-9]{2,}\b \b[A-Za-z0-9]{2,}\b)|(\bcommit\b))$)|(^undo$)/g;
+        this._regex = /(^\b(git|Git)\b ((\b(checkout -b|checkout|branch|merge)\b \b[A-Za-z0-9]{2,}\b)|(\brebase\b \b[A-Za-z0-9]{2,}\b \b[A-Za-z0-9]{2,}\b)|(\bcommit\b))$)|(^undo$)/g;
     }
 
     chopMergedCommand(cmd) {
@@ -24,9 +24,9 @@ class CommandHandler {
         else {
             if (cmdTokens[1] === 'checkout') {
                 if (cmdTokens[2] === '-b') {
-                    choppedCommands.push(`git branch ${cmdTokens[3]}`);
+                    choppedCommands.push(`${cmdTokens[0]} branch ${cmdTokens[3]}`);
                 }
-                choppedCommands.push(`git checkout ${cmdTokens[3]}`);
+                choppedCommands.push(`${cmdTokens[0]} checkout ${cmdTokens[3]}`);
             }
         }
         
