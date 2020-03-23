@@ -29,8 +29,8 @@ class Tree {
             height: 0,
             levelOrder: []
         }
-        this._currentBranchName = '';
-        this._currentBranchNode = null;
+        this._currentBranchName = undefined;
+        this._currentBranchNode = undefined;
         this._animationSpeed = 20;
         this._nextId = 1;
     }
@@ -80,13 +80,20 @@ class Tree {
         this._branchNameToNodeDict[branchName] = node;
     }
 
-    removeBranchFromNodeId(nodeId, branchName) {
-        let node = this._idToNodeDict[nodeId];
-        
+    removeBranchFromNode(node, branchName) {
         if (node !== undefined) {
             node.removeBranch(branchName);
             delete this._branchNameToNodeDict[branchName];
+            if (node === this._currentBranchNode) {
+                this._currentBranchName = undefined;
+                this._currentBranchNode = undefined;
+            }
         }
+    }
+
+    removeBranchFromNodeId(nodeId, branchName) {
+        let node = this._idToNodeDict[nodeId];
+        this.removeBranchFromNode(node, branchName);
     }
 
     setCurrentBranch(branchName) {
@@ -100,23 +107,31 @@ class Tree {
         fromNode.branchNames.splice(fromNode.branchNames.indexOf(branchName), 1);
         toNode.branchNames.push(branchName);
         this._branchNameToNodeDict[branchName] = toNode;
-    }
-
-    attachBranchToNode(branchName, nodeId) {
-        let node = this._idToNodeDict[nodeId]
-        if (node != undefined) {
-            node.addBranch(branchName);
-            this._branchNameToNodeDict[branchName] = node;
+        
+        if (branchName === this._currentBranchName) {
+            this._currentBranchNode = toNode;
         }
     }
 
-    _addChildToNode(parentNode, childNode) {
+    attachExistingBranchToNode(branchName, nodeId) {
+        let node = this._idToNodeDict[nodeId]
+        if (node !== undefined) {
+            node.addBranch(branchName);
+            this._branchNameToNodeDict[branchName] = node;
+            if (this._currentBranchName === branchName) {
+                this._currentBranchNode = node; 
+            }
+        }
+    }
+
+    addChildToNode(parentNode, childNode) {
         if (parentNode === undefined || !this._nodeSet.has(parentNode)) {
             console.log(`Tree::addNode error: parent node does not exist`);
             return;
         }
 
         parentNode.addChild(childNode);
+        childNode.addParent(parentNode);
 
         this._nodeSet.add(childNode);
 
@@ -132,12 +147,12 @@ class Tree {
 
     addChildToBranchName(parentBranchName, childNode) {
         let parentNode = this._branchNameToNodeDict[parentBranchName];
-        this._addChildToNode(parentNode, childNode);        
+        this.addChildToNode(parentNode, childNode);        
     }
 
     addChildToNodeId(parentId, childNode) {
         let parentNode = this._idToNodeDict[parentId];
-        this._addChildToNode(parentNode, childNode);
+        this.addChildToNode(parentNode, childNode);
     }
 
     remove(node) {
@@ -168,16 +183,96 @@ class Tree {
         node.isBeingCreated = false;
     }
 
+    getLCAInfo(currentNode, rebaseNode) {
+        let currentNodePathsToRoot = this.getPathsToNode(currentNode, this._root);
+        let rebaseNodePathsToRoot = this.getPathsToNode(rebaseNode, this._root);
+        let lcaNode;
+
+        for (let i = 0; i < currentNodePathsToRoot.length; ++i) {
+            for (let j = 0; j < rebaseNodePathsToRoot.length; ++j) {
+                lcaNode = this._getLCAFromPathsToRoot(currentNodePathsToRoot[i], rebaseNodePathsToRoot[j]);
+                if (lcaNode !== undefined) {
+                    return {
+                        currentNodePathsToRoot: currentNodePathsToRoot,
+                        rebaseNodePathsToRoot: rebaseNodePathsToRoot,
+                        lcaNode: lcaNode
+                    };
+                }
+            }
+        }
+
+        return {
+            currentNodePathsToRoot: currentNodePathsToRoot,
+            rebaseNodePathsToRoot: rebaseNodePathsToRoot,
+            lcaNode: undefined
+        };
+    }
+
+    getPathsToNode(startNode, endNode) {
+        let allPaths = [];
+        this._recurseToGetPathsToRoot(startNode, endNode, [], allPaths);
+        return allPaths;
+    }
+
+    _recurseToGetPathsToRoot(startNode, endNode, currentPath, allPaths) {
+        currentPath.push(startNode);
+
+        if (startNode === endNode) {
+            allPaths.push(currentPath);
+            return;
+        }
+        
+        let currentPathSnapshot = [];
+        for (let i = 0; i < currentPath.length; ++i) {
+            currentPathSnapshot.push(currentPath[i]);
+        }
+
+        for (let i = 0; i < startNode.parents.length; ++i) {
+            if (i === 0) {
+                this._recurseToGetPathsToRoot(startNode.parents[i], endNode, currentPath, allPaths);
+            }
+            else {
+                let clonedCurrentPath = [];
+                for (let i = 0; i < currentPathSnapshot.length; ++i) {
+                    clonedCurrentPath.push(currentPathSnapshot[i]);
+                }
+                this._recurseToGetPathsToRoot(startNode.parents[i], endNode, clonedCurrentPath, allPaths);
+            }
+        }
+    }
+
+    _getLCAFromPathsToRoot(nodeXPathToRoot, nodeYPathToRoot) {
+        let s = new Set(nodeXPathToRoot);
+        for (let i = 0; i < nodeYPathToRoot.length; ++i) {
+            if (s.has(nodeYPathToRoot[i])) {
+                return nodeYPathToRoot[i];
+            }
+        }
+        return undefined;
+    }
+
+    getNodeCountTillAncestor(descendentNode, ancestorNode) {
+        let paths = this.getPathsToNode(descendentNode, ancestorNode);
+        let s = new Set();
+
+        for (let i = 0; i < paths.length; ++i) {
+            for (let j = 0; j < paths[i].length; ++j) {
+                if (paths[i][j] !== ancestorNode && s.has(paths[i][j]) === false) {
+                    s.add(paths[i][j]);
+                }
+            }
+        }
+
+        return s.size;
+    }
+
     reset() {
         this._init();
+
         let diameter = 35;
-        
         let rootNode = new Node('1', diameter);
         rootNode.addBranch('master');
-        
         this.root = rootNode;
-
-        console.log(this.getTreeInfoStr());
     }
 
     adjust() {

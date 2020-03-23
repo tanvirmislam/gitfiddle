@@ -3,8 +3,8 @@ import Node from './node';
 class CommandHandler {
     #_regex;
 
-    constructor() {
-        this._regex = /(^\b(git|Git)\b ((\b(checkout -b|checkout|branch|merge)\b \b[A-Za-z0-9]{2,}\b)|(\brebase\b \b[A-Za-z0-9]{2,}\b \b[A-Za-z0-9]{2,}\b)|(\bcommit\b))$)|(^undo$)/g;
+    constructor() {    
+        this._regex = /(^\b(git|Git)\b ((\b(branch|checkout -b|checkout|merge|rebase)\b \b[A-Za-z0-9]{2,}\b)|(\bcommit\b))$)|(^undo$)/g;
     }
 
     getValidCommands(cmd) {
@@ -73,7 +73,7 @@ class CommandHandler {
             }
 
             case 'rebase': {
-                console.log(`TODO: Rebase to ${cmdTokens[2]} from ${cmdTokens[3]}`);
+                this.rebase(operationType, cmdTokens[2], tree);
                 break;
             }
 
@@ -137,7 +137,7 @@ class CommandHandler {
                 cmdObject.undoInfo['checkoutNodeId'] = tree.currentBranchNode.id;
                 cmdObject.undoInfo['removeNodeId'] = newNode.id;
                 
-                tree.addChildToNodeId(tree.currentBranchNode.id, newNode);
+                tree.addChildToNode(tree.currentBranchNode, newNode);
                 tree.switchBranch(tree.currentBranchName, tree.currentBranchNode, newNode);
 
                 break;
@@ -146,7 +146,7 @@ class CommandHandler {
             case 'undo': {
                 let poppedCmdObject = history.pop();
 
-                tree.attachBranchToNode(poppedCmdObject.undoInfo['checkoutBranchName'], poppedCmdObject.undoInfo['checkoutNodeId']);
+                tree.attachExistingBranchToNode(poppedCmdObject.undoInfo['checkoutBranchName'], poppedCmdObject.undoInfo['checkoutNodeId']);
                 tree.setCurrentBranch(poppedCmdObject.undoInfo['checkoutBranchName']);
                 tree.markNodeIdForDeletion(poppedCmdObject.undoInfo['removeNodeId']);
                 
@@ -166,6 +166,13 @@ class CommandHandler {
                 let mergeWithNode = tree.getNodeFromBranchName(mergeWithBranchName);
 
                 if (mergeWithNode !== undefined) {
+                    for (let i = 0; i < tree.currentBranchNode.parents.length; ++i) {
+                        if (tree.currentBranchNode.parents[i] === mergeWithNode) {
+                            history.pop();
+                            return;
+                        }
+                    }
+
                     cmdObject.undoInfo['removeParentNodeId'] = mergeWithNode.id;
                     this.commit('do', tree, cmdObject, history);
                     tree.currentBranchNode.addParent(mergeWithNode);
@@ -182,6 +189,59 @@ class CommandHandler {
 
             default: {
                 console.log('Invalid merge command');
+                break;
+            }
+        }
+    }
+
+    rebase(operationType, branchName, tree) {
+        switch (operationType) {
+            case 'do': {
+                if (tree.currentBranchName === branchName) {
+                    history.pop();
+                    return;
+                }
+
+                let currentNode = tree.currentBranchNode;
+                let rebaseNode = tree.getNodeFromBranchName(branchName);
+
+                if (rebaseNode.hasChild(currentNode)) {
+                    history.pop();
+                    return;
+                }
+                else if (currentNode.hasChild(rebaseNode)) {
+                    tree.switchBranch(tree.currentBranchName, currentNode, rebaseNode);
+                    return;
+                }
+
+                let lcaInfo = tree.getLCAInfo(currentNode, rebaseNode);
+                let count = tree.getNodeCountTillAncestor(currentNode, lcaInfo.lcaNode);
+
+                console.log('\nPaths from current node to root: ');
+                for (let i = 0; i < lcaInfo.currentNodePathsToRoot.length; ++i) {
+                    let path = '';
+                    for (let j = 0; j < lcaInfo.currentNodePathsToRoot[i].length; ++j) {
+                        path += lcaInfo.currentNodePathsToRoot[i][j].id + ' ';
+                    }
+                    console.log(path + '\n');
+                }
+
+                console.log('Paths from rebase node to root');
+                for (let i = 0; i < lcaInfo.rebaseNodePathsToRoot.length; ++i) {
+                    let path = '';
+                    for (let j = 0; j < lcaInfo.rebaseNodePathsToRoot[i].length; ++j) {
+                        path += lcaInfo.rebaseNodePathsToRoot[i][j].id + ' ';
+                    }
+                    console.log(path);
+                }
+
+                console.log(`LCA Node: ${lcaInfo.lcaNode.id}`);
+                console.log(`Node count from current node till LCA Node: ${count}`);
+
+                break;
+            }
+
+            default: {
                 break;
             }
         }

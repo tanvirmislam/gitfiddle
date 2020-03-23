@@ -45,7 +45,6 @@ class Node {
 
         if (!this._children.includes(childNode)) {
             this._children.push(childNode);
-            childNode.addParent(this);
         }
     }
 
@@ -65,6 +64,27 @@ class Node {
         if (this._branchNames.includes(name)) {
             this._branchNames.splice(this._branchNames.indexOf(name), 1);
         }
+    }
+
+    isLeaf() {
+        return (this._children.length === 0);
+    }
+
+    hasChild(childNode) {
+        if (this._children.length === 0) {
+            return false;
+        }
+        else if (this._children.includes(childNode)) {
+            return true;
+        }
+        
+        for (let i = 0; i < this._children.length; ++i) {
+            if (this._children[i].hasChild(childNode)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     set x(val)                      { this._x = val; }

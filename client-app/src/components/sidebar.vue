@@ -1,37 +1,45 @@
 <template>
 
 
-    <v-navigation-drawer dark v-model="status" app clipped flat mobile-break-point :width="sidebarWidth" class="commandDrawer">
+    <v-navigation-drawer dark v-model="status" app clipped flat mobile-break-point :width="sidebarWidth" class="commandNavigationDrawer" ref="drawer">
+        <v-container class="overflow-y-auto commandContainer">
+            <v-row>
+                <div class="commadHistory">
+                    <v-list dense class="mb-10">
+
+                    <v-subheader>Command History</v-subheader>
+                    <v-list-item-group>
+                        <v-list-item v-for="(commandObj, i) in history" :key="i">
+                            <v-list-item-content>
+
+                                <v-row>
+                                    <v-col cols=8>
+                                        <span>{{ commandObj.command }}</span>
+                                    </v-col>
+                                    <v-spacer></v-spacer>
+                                    <v-col align="right">
+                                        <span v-if="isBeingProcessed(commandObj)"><font-awesome-icon icon="spinner" pulse /></span>
+                                        <span v-if="hasBeenProcessed(commandObj)" class="ml-2 mr-2"><font-awesome-icon icon="check" /></span>
+                                    </v-col>
+                                </v-row>
+
+                            </v-list-item-content>
+                        </v-list-item>
+                    </v-list-item-group>
+                    
+                    </v-list>
+                </div>
+            </v-row>
+
+            <v-row class="mt-10">
+                 <v-footer absolute padless color='#363636' class='mt-3'>
+                    <v-text-field v-model="cmd" label="Command" :rules="[isAcceptingCommands, isCommandValid]" @keydown.enter="commandEntered" outlined height="40px" class="ml-4 mr-4" autocomplete="off"></v-text-field>
+                </v-footer>
+            </v-row>            
+        </v-container>
         
-        <div v-bar class="vuebar-element"> 
-            <v-list dense>
 
-                <v-subheader>Command History</v-subheader>
-                <v-list-item-group class="mb-10">
-                    <v-list-item v-for="(commandObj, i) in history" :key="i">
-                        <v-list-item-content>
-
-                            <v-row>
-                                <v-col cols=8>
-                                    <span>{{ commandObj.command }}</span>
-                                </v-col>
-                                <v-spacer></v-spacer>
-                                <v-col align="right">
-                                    <span v-if="isBeingProcessed(commandObj)"><font-awesome-icon icon="spinner" pulse /></span>
-                                    <span v-if="hasBeenProcessed(commandObj)" class="ml-2 mr-2"><font-awesome-icon icon="check" /></span>
-                                </v-col>
-                            </v-row>
-
-                        </v-list-item-content>
-                    </v-list-item>
-                </v-list-item-group>
-            
-            </v-list>
-        </div>
-
-        <v-footer absolute padless color='#363636'>
-            <v-text-field v-model="cmd" label="Command" :rules="[isAcceptingCommands, isCommandValid]" @keydown.enter="commandEntered" outlined height="40px" class="ml-4 mr-4" autocomplete="off"></v-text-field>
-        </v-footer>
+       
         
     </v-navigation-drawer>
 
@@ -142,6 +150,29 @@
                     let top = this.queue.shift();
                     this.commandHandler.process(top, this.tree, this.history);
                 }
+            },
+
+            hasStarted() {
+                let commands = [
+                    'git checkout -b devel',
+                    'git commit',
+                    'git checkout master',
+                    'git commit',
+                    'git checkout -b feat',
+                    'git commit',
+                    'git checkout master',
+                    'git commit',
+                    'git merge feat',
+                    'git commit',
+                    'git merge feat',
+                    'git commit',
+                    'git rebase devel'
+                ];
+
+                for (let i = 0; i < commands.length; ++i) {
+                    this.cmd = commands[i];
+                    this.commandEntered();
+                }
             }
         }
     }
@@ -152,62 +183,15 @@
 <style>
     @import url('https://fonts.googleapis.com/css?family=Ubuntu+Mono&display=swap');
 
-    .commandDrawer {
+    .commandNavigationDrawer {
         font-family: 'Ubuntu Mono';
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
     }
 
-    .vuebar-element {
+    .commadHistory {
         height: 100%;
         width: 100%;
-    }
-
-
-    .vb > .vb-dragger {
-        z-index: 10;
-        width: 12px;
-        right: 0;
-    }
-
-    .vb > .vb-dragger > .vb-dragger-styler {
-        -webkit-backface-visibility: hidden;
-        backface-visibility: hidden;
-        -webkit-transform: rotate3d(0,0,0,0);
-        transform: rotate3d(0,0,0,0);
-        -webkit-transition:
-            background-color 100ms ease-out,
-            margin 100ms ease-out,
-            height 100ms ease-out;
-        transition:
-            background-color 100ms ease-out,
-            margin 100ms ease-out,
-            height 100ms ease-out;
-        background-color: rgba(197, 65, 65, 0.678);
-        margin: 5px 5px 5px 0;
-        border-radius: 20px;
-        height: calc(100% - 10px);
-        display: block;
-    }
-
-    .vb.vb-scrolling-phantom > .vb-dragger > .vb-dragger-styler {
-        background-color: rgba(197, 65, 65, 0.678);
-    }
-
-    .vb > .vb-dragger:hover > .vb-dragger-styler {
-        background-color: rgba(197, 65, 65, 0.678);
-        margin: 0px;
-        height: 100%;
-    }
-
-    .vb.vb-dragging > .vb-dragger > .vb-dragger-styler {
-        background-color: rgba(197, 65, 65, 0.678);
-        margin: 0px;
-        height: 100%;
-    }
-
-    .vb.vb-dragging-phantom > .vb-dragger > .vb-dragger-styler {
-        background-color: rgba(197, 65, 65, 0.678);
     }
 
 </style>
