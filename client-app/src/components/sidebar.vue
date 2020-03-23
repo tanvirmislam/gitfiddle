@@ -153,26 +153,7 @@
             },
 
             hasStarted() {
-                let commands = [
-                    'git checkout -b devel',
-                    'git commit',
-                    'git checkout master',
-                    'git commit',
-                    'git checkout -b feat',
-                    'git commit',
-                    'git checkout master',
-                    'git commit',
-                    'git merge feat',
-                    'git commit',
-                    'git merge feat',
-                    'git commit',
-                    'git rebase devel'
-                ];
-
-                for (let i = 0; i < commands.length; ++i) {
-                    this.cmd = commands[i];
-                    this.commandEntered();
-                }
+                
             }
         }
     }

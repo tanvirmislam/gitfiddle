@@ -38,6 +38,7 @@
                 currentStrokeForBeingCreated: 255,
                 currentStrokeForBeingDeleted: 0,
                 fill: '#DCF0EB',
+                deletedFill: '#e0210b',
                 line: 0,
                 text: '#bd3417'
             }
@@ -172,7 +173,7 @@
                 }
                 else {
                     sketch.stroke(this.colors.currentStrokeForBeingDeleted);
-                    sketch.noFill();
+                    sketch.fill(this.colors.deletedFill);
                     sketch.ellipse(node.x, node.y, node.d, node.d);
                     
                     this.drawLineToParents(sketch, node);
@@ -184,8 +185,11 @@
                     else {
                         node.isAnimated = false;
                         this.tree.remove(node);
-                        this.tree.adjust();
                         this.colors.currentStrokeForBeingDeleted = this.colors.finalStroke;
+                    
+                        if (!this.tree.areAnyNodesMarkedForDeletion()) {
+                            this.tree.adjust();
+                        }
                     }
                 }
             },

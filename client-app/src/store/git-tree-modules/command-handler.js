@@ -73,7 +73,7 @@ class CommandHandler {
             }
 
             case 'rebase': {
-                this.rebase(operationType, cmdTokens[2], tree);
+                this.rebase(operationType, cmdTokens[2], tree, cmdObject, history);
                 break;
             }
 
@@ -95,8 +95,8 @@ class CommandHandler {
             }
 
             case 'undo': {
-                let poppedCmdObject = history.pop();
-                tree.removeBranchFromNodeId(poppedCmdObject.undoInfo['nodeId'], poppedCmdObject.undoInfo['branchName']);
+                let popped = history.pop();
+                tree.removeBranchFromNodeId(popped.undoInfo['nodeId'], popped.undoInfo['branchName']);
                 break;
             }
             
@@ -116,8 +116,8 @@ class CommandHandler {
             }
 
             case 'undo': {
-                let poppedCmdObject = history.pop();
-                tree.setCurrentBranch(poppedCmdObject.undoInfo['branchName']);
+                let popped = history.pop();
+                tree.setCurrentBranch(popped.undoInfo['branchName']);
                 break;
             }
             
@@ -131,7 +131,7 @@ class CommandHandler {
     commit(operationType, tree, cmdObject, history) {
         switch (operationType) {
             case 'do': {
-                let newNode = new Node(tree.nextId, 35);
+                let newNode = new Node(tree.nextId, tree.nodeDiameter);
 
                 cmdObject.undoInfo['checkoutBranchName'] = tree.currentBranchName;
                 cmdObject.undoInfo['checkoutNodeId'] = tree.currentBranchNode.id;
@@ -144,11 +144,11 @@ class CommandHandler {
             }
 
             case 'undo': {
-                let poppedCmdObject = history.pop();
+                let popped = history.pop();
 
-                tree.attachExistingBranchToNode(poppedCmdObject.undoInfo['checkoutBranchName'], poppedCmdObject.undoInfo['checkoutNodeId']);
-                tree.setCurrentBranch(poppedCmdObject.undoInfo['checkoutBranchName']);
-                tree.markNodeIdForDeletion(poppedCmdObject.undoInfo['removeNodeId']);
+                tree.attachExistingBranchToNode(popped.undoInfo['checkoutBranchName'], popped.undoInfo['checkoutNodeId']);
+                tree.setCurrentBranch(popped.undoInfo['checkoutBranchName']);
+                tree.markNodeIdForDeletion(popped.undoInfo['removeNodeId']);
                 
                 break;
             }
@@ -194,7 +194,7 @@ class CommandHandler {
         }
     }
 
-    rebase(operationType, branchName, tree) {
+    rebase(operationType, branchName, tree, cmdObject, history) {
         switch (operationType) {
             case 'do': {
                 if (tree.currentBranchName === branchName) {
@@ -210,13 +210,18 @@ class CommandHandler {
                     return;
                 }
                 else if (currentNode.hasChild(rebaseNode)) {
+                    cmdObject.undoInfo['rebaseUndoType'] = 1;
+                    cmdObject.undoInfo['switchBranchFromNodeId'] = rebaseNode.id;
+                    cmdObject.undoInfo['switchBranchToNodeId'] = currentNode.id;
                     tree.switchBranch(tree.currentBranchName, currentNode, rebaseNode);
                     return;
                 }
 
                 let lcaInfo = tree.getLCAInfo(currentNode, rebaseNode);
                 let count = tree.getNodeCountTillAncestor(currentNode, lcaInfo.lcaNode);
+                let branchSpecificPath = tree.getBranchSpecificPath(tree.currentBranchName);
 
+                /*
                 console.log('\nPaths from current node to root: ');
                 for (let i = 0; i < lcaInfo.currentNodePathsToRoot.length; ++i) {
                     let path = '';
@@ -237,6 +242,71 @@ class CommandHandler {
 
                 console.log(`LCA Node: ${lcaInfo.lcaNode.id}`);
                 console.log(`Node count from current node till LCA Node: ${count}`);
+                
+                console.log(`Branch specific path of branch ${tree.currentBranchName}: `);
+                let path = '';
+                for (let i = 0; i < branchSpecificPath.length; ++i) {
+                    path += branchSpecificPath[i].id + ' ';
+                }
+                console.log(path);
+                */
+
+                let createNodesInfo = [];
+                let removeNodesInfo = [];
+
+                let lastCommittedNode = rebaseNode;
+                for (let i = 0; i < count; ++i) {
+                    let newNode = new Node(tree.nextId, tree.nodeDiameter);
+                    tree.addChildToNode(lastCommittedNode, newNode);
+                    lastCommittedNode = newNode;
+                    removeNodesInfo.push(newNode.getNodeInfo());
+                }
+
+                for (let i = branchSpecificPath.length - 1; i >= 0; --i) {
+                    createNodesInfo.push(branchSpecificPath[i].getNodeInfo());
+                    tree.markNodeForDeletion(branchSpecificPath[i]);
+                }
+                
+                cmdObject.undoInfo['rebaseUndoType'] = 2;
+                cmdObject.undoInfo['createNodesInfo'] = createNodesInfo;
+                cmdObject.undoInfo['removeNodesInfo'] = removeNodesInfo;
+                cmdObject.undoInfo['switchBranchFromNodeId'] = lastCommittedNode.id;
+                cmdObject.undoInfo['switchBranchToNodeId'] = tree.currentBranchNode.id;
+
+                tree.switchBranch(tree.currentBranchName, tree.currentBranchNode, lastCommittedNode);
+
+                console.log(cmdObject.undoInfo);
+
+                break;
+            }
+
+            case 'undo': {
+                let popped = history.pop();
+
+                if (popped.undoInfo['rebaseUndoType'] == 1) {
+                    let fromNode = tree.getNodeFromId(popped.undoInfo['switchBranchFromNodeId']);
+                    let toNode = tree.getNodeFromId(popped.undoInfo['switchBranchToNodeId']);
+                    tree.switchBranch(tree.currentBranchName, fromNode, toNode);
+                }
+                else {
+                    for (let i = 0; i < popped.undoInfo['createNodesInfo'].length; ++i) {
+                        let newNode = new Node(popped.undoInfo['createNodesInfo'][i]['id'], popped.undoInfo['createNodesInfo'][i]['diameter']);
+                        
+                        for (let j = 0; j < popped.undoInfo['createNodesInfo'][i]['parentIds'].length; ++j) {
+                            let parentNode = tree.getNodeFromId(popped.undoInfo['createNodesInfo'][i]['parentIds'][j]);
+                            tree.addChildToNode(parentNode, newNode);
+                        }
+                    }
+
+                    let fromNode = tree.getNodeFromId(popped.undoInfo['switchBranchFromNodeId']);
+                    let toNode = tree.getNodeFromId(popped.undoInfo['switchBranchToNodeId']);
+                    tree.switchBranch(tree.currentBranchName, fromNode, toNode);
+
+                    for (let i = 0; i < popped.undoInfo['removeNodesInfo'].length; ++i) {
+                        let node = tree.getNodeFromId(popped.undoInfo['removeNodesInfo'][i]['id']);
+                        tree.remove(node);
+                    }
+                }
 
                 break;
             }

@@ -13,7 +13,11 @@ class Node {
     #_allocatedTextPosition;
 
     constructor(id, diameter) {
-        this._id = id.toString();
+        this._init(id.toString(), diameter);
+    }
+
+    _init(id, diameter) {
+        this._id = id;
         this._branchNames = [];
         this._x = 0;
         this._y = 0;
@@ -30,6 +34,26 @@ class Node {
             height: null
         };
     }
+
+    set x(val)                      { this._x = val; }
+    set y(val)                      { this._y = val; }
+    set d(val)                      { this._d = val; this._r = val / 2.0; }
+    set r(val)                      { this._r = val; this._d = val * 2.0; }
+    set isAnimated(status)          { this._isAnimated = status; }
+    set isBeingCreated(status)      { this._isBeingCreated = status; }
+    set allocatedTextPosition(pos)  { this._allocatedTextPosition = pos; }
+
+    get id()                        { return this._id; }
+    get branchNames()               { return this._branchNames; }
+    get x()                         { return this._x; }
+    get y()                         { return this._y; }
+    get d()                         { return this._d; }
+    get r()                         { return this._r; }
+    get isAnimated()                { return this._isAnimated; }
+    get isBeingCreated()            { return this._isBeingCreated; }
+    get parents()                    { return this._parents; }    
+    get children()                  { return this._children; }
+    get allocatedTextPosition()     { return this._allocatedTextPosition; }
 
     addParent(node) {
         if (!this._parents.includes(node)) {
@@ -87,25 +111,26 @@ class Node {
         return false;
     }
 
-    set x(val)                      { this._x = val; }
-    set y(val)                      { this._y = val; }
-    set d(val)                      { this._d = val; this._r = val / 2.0; }
-    set r(val)                      { this._r = val; this._d = val * 2.0; }
-    set isAnimated(status)          { this._isAnimated = status; }
-    set isBeingCreated(status)      { this._isBeingCreated = status; }
-    set allocatedTextPosition(pos)  { this._allocatedTextPosition = pos; }
+    getNodeInfo() {
+        let parentsIds = [];
+        let childIds = [];
 
-    get id()                        { return this._id; }
-    get branchNames()               { return this._branchNames; }
-    get x()                         { return this._x; }
-    get y()                         { return this._y; }
-    get d()                         { return this._d; }
-    get r()                         { return this._r; }
-    get isAnimated()                { return this._isAnimated; }
-    get isBeingCreated()            { return this._isBeingCreated; }
-    get parents()                    { return this._parents; }    
-    get children()                  { return this._children; }
-    get allocatedTextPosition()     { return this._allocatedTextPosition; }
+        for (let i = 0; i < this._parents.length; ++i) {
+            parentsIds.push(this._parents[i].id);
+        }
+
+        for (let i = 0; i < this._children.length; ++i) {
+            childIds.push(this._children[i].id);
+        }
+
+        return {
+            id: this._id,
+            diameter: this._d,
+            parentIds: parentsIds,
+            childIds: childIds,
+            branchNames: this._branchNames
+        };
+    }
 }
 
 export default Node;

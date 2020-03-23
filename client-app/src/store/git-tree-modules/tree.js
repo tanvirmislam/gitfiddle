@@ -15,7 +15,7 @@ class Tree {
     constructor(treeFormatter) {
         this._formatter = treeFormatter;
         this._init();
-        this._buildDemoTree();
+        this._buildPreviewTree();
     }
 
     _init() {
@@ -32,6 +32,7 @@ class Tree {
         this._currentBranchName = undefined;
         this._currentBranchNode = undefined;
         this._animationSpeed = 20;
+        this._nodeDiameter = 35;
         this._nextId = 1;
     }
 
@@ -56,6 +57,7 @@ class Tree {
     }
 
     set animationSpeed(spd)     { this._animationSpeed = spd; }
+    set nodeDiameter(d)         { this._nodeDiameter = d; }
 
     get root()                  { return this._root; }
     get nodeSet()               { return this._nodeSet; }
@@ -65,6 +67,7 @@ class Tree {
     get currentBranchName()     { return this._currentBranchName; }
     get currentBranchNode()     { return this._branchNameToNodeDict[this._currentBranchName]; }
     get animationSpeed()        { return this._animationSpeed; }
+    get nodeDiameter()          { return this._nodeDiameter; }
     get nextId()                { return ++this._nextId; }
 
     getNodeFromId(nodeId) {
@@ -126,7 +129,7 @@ class Tree {
 
     addChildToNode(parentNode, childNode) {
         if (parentNode === undefined || !this._nodeSet.has(parentNode)) {
-            console.log(`Tree::addNode error: parent node does not exist`);
+            console.log(`Tree::addChildToNode error: parent node does not exist`);
             return;
         }
 
@@ -172,15 +175,25 @@ class Tree {
         });
     }
 
-    markNodeIdForDeletion(nodeId) {
-        let node = this._idToNodeDict[nodeId];
-
+    markNodeForDeletion(node) {
         if (node === undefined) {
             return;
         }
-        
         node.isAnimated = true;
         node.isBeingCreated = false;
+    }
+
+    markNodeIdForDeletion(nodeId) {
+        let node = this._idToNodeDict[nodeId];
+        this.markNodeForDeletion(node);
+    }
+
+    areAnyNodesMarkedForDeletion() {
+        let status = false;
+        this._nodeSet.forEach((n) => {
+            status = status || (n.isAnimated && !n.isBeingCreated);
+        });
+        return status;
     }
 
     getLCAInfo(currentNode, rebaseNode) {
@@ -266,6 +279,46 @@ class Tree {
         return s.size;
     }
 
+    getBranchSpecificPath(branchName) {
+        let node = this._branchNameToNodeDict[branchName];
+        let pathSet = new Set();
+
+        this._recurseToGetBranchSpecificPath(branchName, node, pathSet);
+        return Array.from(pathSet);
+    }
+
+    _recurseToGetBranchSpecificPath(branchName, currentNode, pathSet) {
+        if (currentNode === this._root) {
+            return pathSet;
+        }
+
+        if (currentNode.children.length === 0) {
+            if (currentNode.branchNames.length === 1 && currentNode.branchNames[0] === branchName) {
+                pathSet.add(currentNode);
+            }
+            else {
+                return pathSet;
+            }
+        }
+        else if (currentNode.children.length === 1){
+            if (pathSet.has(currentNode.children[0])) {
+                pathSet.add(currentNode);
+            }
+            else {
+                return pathSet;
+            }
+        }
+        else {
+            return pathSet;
+        }
+
+        for (let i = 0; i < currentNode.parents.length; ++i) {
+            this._recurseToGetBranchSpecificPath(branchName, currentNode.parents[i], pathSet);
+        }
+
+        return pathSet;
+    }
+
     reset() {
         this._init();
 
@@ -332,26 +385,25 @@ class Tree {
         return str;
     }
 
-    _buildDemoTree() {
-        let diameter = 35;
-        let n1  = new Node('1',  diameter);
-        let n2  = new Node('2',  diameter);
-        let n3  = new Node('3',  diameter);
-        let n4  = new Node('4',  diameter);
-        let n5  = new Node('5',  diameter);
-        let n6  = new Node('6',  diameter);
-        let n7  = new Node('7',  diameter);
-        let n8  = new Node('8',  diameter);
-        let n9  = new Node('9',  diameter);
-        let n10 = new Node('10', diameter);
-        let n11 = new Node('11', diameter);
-        let n12 = new Node('12', diameter);
-        let n13 = new Node('13', diameter);
-        let n14 = new Node('14', diameter);
-        let n15 = new Node('15', diameter);
-        let n16 = new Node('16', diameter);
-        let n17 = new Node('17', diameter);
-        let n18 = new Node('18', diameter);
+    _buildPreviewTree() {
+        let n1  = new Node('1',  this._nodeDiameter);
+        let n2  = new Node('2',  this._nodeDiameter);
+        let n3  = new Node('3',  this._nodeDiameter);
+        let n4  = new Node('4',  this._nodeDiameter);
+        let n5  = new Node('5',  this._nodeDiameter);
+        let n6  = new Node('6',  this._nodeDiameter);
+        let n7  = new Node('7',  this._nodeDiameter);
+        let n8  = new Node('8',  this._nodeDiameter);
+        let n9  = new Node('9',  this._nodeDiameter);
+        let n10 = new Node('10', this._nodeDiameter);
+        let n11 = new Node('11', this._nodeDiameter);
+        let n12 = new Node('12', this._nodeDiameter);
+        let n13 = new Node('13', this._nodeDiameter);
+        let n14 = new Node('14', this._nodeDiameter);
+        let n15 = new Node('15', this._nodeDiameter);
+        let n16 = new Node('16', this._nodeDiameter);
+        let n17 = new Node('17', this._nodeDiameter);
+        let n18 = new Node('18', this._nodeDiameter);
         
         this.root = n1;
         
