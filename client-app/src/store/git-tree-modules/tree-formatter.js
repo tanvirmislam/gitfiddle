@@ -22,7 +22,7 @@ class TreeFormatter {
         if (node.children.length === 0) {
             node.allocatedTextPosition = {
                 x: center,
-                y: y - node.r - 8,
+                y: y - node.r - node.textYDistanceFromNode,
                 width: maxX,
                 height: node.d
             }
@@ -37,7 +37,7 @@ class TreeFormatter {
 
         node.allocatedTextPosition = {
             x: center,
-            y: y - node.r - 8,
+            y: y - node.r - node.textYDistanceFromNode,
             width: endX,
             height: node.d
         }

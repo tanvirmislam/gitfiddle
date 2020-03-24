@@ -1,7 +1,7 @@
 <template>
     <div>
         <v-row align="center" justify="center">
-            <vue-p5 @setup="setup" @draw="draw"></vue-p5>
+            <vue-p5 @setup="setup" @draw="draw" @mousepressed="mousePressed" @mousereleased="mouseReleased"></vue-p5>
         </v-row>
 
         <v-row v-if="!hasSimulationStarted" align="center" justify="center">
@@ -43,7 +43,10 @@
                 deletedFill: '#e0210b',
                 line: 0,
                 text: '#bd3417'
-            }
+            },
+
+            mouseOnNode: undefined,
+            isDragging: false
         }),
 
         components: {
@@ -130,6 +133,13 @@
 
             draw(sketch) {
                 sketch.background(this.colors.background);
+                
+                if (this.mouseOnNode !== undefined && this.isDragging) {
+                    this.mouseOnNode.x = sketch.mouseX;
+                    this.mouseOnNode.y = sketch.mouseY;
+                    this.mouseOnNode.allocatedTextPosition['x'] = this.mouseOnNode.x;
+                    this.mouseOnNode.allocatedTextPosition['y'] = this.mouseOnNode.y - this.mouseOnNode.r - this.mouseOnNode.textYDistanceFromNode;
+                }
 
                 for (let node of this.nodeSet) {
                     sketch.strokeWeight(1.2);
@@ -140,6 +150,10 @@
                         break;
                     }
                     else {
+                        if (!this.isDragging && this.isMouseOnNode(sketch, node)) {
+                            this.mouseOnNode = node;
+                        }
+
                         this.drawStaticNode(sketch, node);
                         this.drawBranchNames(sketch, node);
                         this.drawLineToParents(sketch, node);
@@ -252,6 +266,23 @@
                 let angle = vec1.angleBetween(vec2);
 
                 return angle;
+            },
+
+            isMouseOnNode(sketch, node) {
+                if(sketch.dist(node.x, node.y, sketch.mouseX, sketch.mouseY) < node.d/2){
+                    return true;
+                }
+                return false;
+            },
+
+            mousePressed(sketch) {
+                if (this.mouseOnNode !== undefined && sketch.dist(this.mouseOnNode.x, this.mouseOnNode.y, sketch.mouseX, sketch.mouseY) < this.mouseOnNode.d/2){
+                    this.isDragging = true;
+                }
+            },
+
+            mouseReleased() {
+                this.isDragging = false;
             }
         },
 

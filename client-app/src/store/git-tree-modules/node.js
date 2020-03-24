@@ -35,6 +35,7 @@ class Node {
             width: null,
             height: null
         };
+        this._textYDistanceFromNode = 8;
     }
 
     set x(val)                      { this._x = val; }
@@ -45,6 +46,7 @@ class Node {
     set isBeingCreated(status)      { this._isBeingCreated = status; }
     set isPushed(status)            { this._isPushed = status; }
     set allocatedTextPosition(pos)  { this._allocatedTextPosition = pos; }
+    set textYDistanceFromNode(val)  { this._textYDistanceFromNode = val; }
 
     get id()                        { return this._id; }
     get branchNames()               { return this._branchNames; }
@@ -58,6 +60,7 @@ class Node {
     get parents()                   { return this._parents; }    
     get children()                  { return this._children; }
     get allocatedTextPosition()     { return this._allocatedTextPosition; }
+    get textYDistanceFromNode()     { return this._textYDistanceFromNode; }
 
     addParent(node) {
         if (!this._parents.includes(node)) {
