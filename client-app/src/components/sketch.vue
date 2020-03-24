@@ -1,7 +1,7 @@
 <template>
     <div>
         <v-row align="center" justify="center">
-            <vue-p5 @setup="setup" @draw="draw" @mousepressed="mousePressed" @mousereleased="mouseReleased"></vue-p5>
+            <vue-p5 @setup="setup" @draw="draw" @mousepressed="mousePressed" @mousereleased="mouseReleased" @touchstarted="touchStarted" @touchended="touchEnded" @touchmoved="touchMoved"></vue-p5>
         </v-row>
 
         <v-row v-if="!hasSimulationStarted" align="center" justify="center">
@@ -279,10 +279,26 @@
                 if (this.mouseOnNode !== undefined && sketch.dist(this.mouseOnNode.x, this.mouseOnNode.y, sketch.mouseX, sketch.mouseY) < this.mouseOnNode.d/2){
                     this.isDragging = true;
                 }
+                return false;
             },
 
             mouseReleased() {
                 this.isDragging = false;
+                return false;
+            },
+
+            touchStarted(sketch) {
+                this.mousePressed(sketch);
+                return false;
+            },
+
+            touchEnded() {
+                this.mouseReleased();
+                return false;
+            },
+
+            touchMoved() {
+                return false;
             }
         },
 
