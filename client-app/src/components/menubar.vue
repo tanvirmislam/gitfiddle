@@ -59,6 +59,7 @@
                 'git commit',
                 'git merge <name>',
                 'git rebase <name>',
+                'git push',
                 'undo'
             ]
         }),
