@@ -101,6 +101,10 @@ class CommandHandler {
     branch(operationType, branchName, tree, cmdObject, history) {
         switch (operationType) {
             case 'do': {
+                if (tree.doesBranchExist(branchName)) {
+                    return false;
+                }
+
                 cmdObject.undoInfo['removeBranchFromNodeId'] = tree.currentBranchNode.id;
                 cmdObject.undoInfo['removeBranchName'] = branchName;
                 tree.addBranchToNode(tree.currentBranchNode, branchName);
