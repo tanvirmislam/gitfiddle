@@ -4,9 +4,9 @@
             <vue-p5 @setup="setup" @draw="draw"></vue-p5>
         </v-row>
 
-        <v-row v-if="!hasStarted" align="center" justify="center">
+        <v-row v-if="!hasSimulationStarted" align="center" justify="center">
             <v-col align="center">
-                <v-btn large color="error" @click.prevent="startSim"> Get Started! </v-btn>
+                <v-btn large color="error" @click.prevent="startSimulation"> Get Started! </v-btn>
             </v-col>
         </v-row>
     </div>
@@ -68,7 +68,7 @@
                 treeInfo: 'treeInfo',
                 treeFormatter: 'treeFormatter',
                 animationSpeed: 'animationSpeed',
-                hasStarted: 'hasStarted'
+                hasSimulationStarted: 'hasStarted'
             }),
         },
 
@@ -83,14 +83,8 @@
                 'setFormatterCanvasWidth',
                 'setFormatterCanvasHeight',
                 'setAnimationSpeed',
-                'start'
+                'startSimulation'
             ]),
-
-            startSim() {
-                this.start();
-                this.tree.reset();
-                this.tree.animationSpeed = 10;
-            },
 
             adjustDimensions(sketch) {
                 if (this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'sm') {
@@ -142,6 +136,9 @@
                 sketch.background(this.colors.background);
 
                 for (let node of this.nodeSet) {
+                    sketch.strokeWeight(1.2);
+                    sketch.drawingContext.setLineDash(node.isPushed ? [] : [10, 5]);
+                    
                     if (node.isAnimated) {
                         this.drawAnimatingNode(sketch, node);
                         break;

@@ -4,7 +4,7 @@ class CommandHandler {
     #_regex;
 
     constructor() {    
-        this._regex = /(^\b(git|Git)\b ((\b(branch|checkout -b|checkout|merge|rebase)\b \b[A-Za-z0-9]{2,}\b)|(\bcommit\b))$)|(^undo$)/g;
+        this._regex = /(^\b(git|Git)\b ((\b(branch|checkout -b|checkout|merge|rebase)\b \b[A-Za-z0-9]{2,}\b)|(\bcommit\b)|(\bpush\b))$)|(^undo$)/g;
     }
 
     getValidCommands(cmd) {
@@ -77,6 +77,11 @@ class CommandHandler {
                 break;
             }
 
+            case 'push': {
+                this.push(operationType, tree, cmdObject, history);
+                break;
+            }
+
             default: {
                 break;
             }
@@ -88,15 +93,15 @@ class CommandHandler {
     branch(operationType, branchName, tree, cmdObject, history) {
         switch (operationType) {
             case 'do': {
-                cmdObject.undoInfo['nodeId'] = tree.currentBranchNode.id;
-                cmdObject.undoInfo['branchName'] = branchName;
+                cmdObject.undoInfo['removeBranchFromNodeId'] = tree.currentBranchNode.id;
+                cmdObject.undoInfo['removeBranchName'] = branchName;
                 tree.addBranchToNode(tree.currentBranchNode, branchName);
                 break;
             }
 
             case 'undo': {
                 let popped = history.pop();
-                tree.removeBranchFromNodeId(popped.undoInfo['nodeId'], popped.undoInfo['branchName']);
+                tree.removeBranchFromNodeId(popped.undoInfo['removeBranchFromNodeId'], popped.undoInfo['removeBranchName']);
                 break;
             }
             
@@ -221,36 +226,6 @@ class CommandHandler {
                 let count = tree.getNodeCountTillAncestor(currentNode, lcaInfo.lcaNode);
                 let branchSpecificPath = tree.getBranchSpecificPath(tree.currentBranchName);
 
-                /*
-                console.log('\nPaths from current node to root: ');
-                for (let i = 0; i < lcaInfo.currentNodePathsToRoot.length; ++i) {
-                    let path = '';
-                    for (let j = 0; j < lcaInfo.currentNodePathsToRoot[i].length; ++j) {
-                        path += lcaInfo.currentNodePathsToRoot[i][j].id + ' ';
-                    }
-                    console.log(path + '\n');
-                }
-
-                console.log('Paths from rebase node to root');
-                for (let i = 0; i < lcaInfo.rebaseNodePathsToRoot.length; ++i) {
-                    let path = '';
-                    for (let j = 0; j < lcaInfo.rebaseNodePathsToRoot[i].length; ++j) {
-                        path += lcaInfo.rebaseNodePathsToRoot[i][j].id + ' ';
-                    }
-                    console.log(path);
-                }
-
-                console.log(`LCA Node: ${lcaInfo.lcaNode.id}`);
-                console.log(`Node count from current node till LCA Node: ${count}`);
-                
-                console.log(`Branch specific path of branch ${tree.currentBranchName}: `);
-                let path = '';
-                for (let i = 0; i < branchSpecificPath.length; ++i) {
-                    path += branchSpecificPath[i].id + ' ';
-                }
-                console.log(path);
-                */
-
                 let createNodesInfo = [];
                 let removeNodesInfo = [];
 
@@ -274,8 +249,6 @@ class CommandHandler {
                 cmdObject.undoInfo['switchBranchToNodeId'] = tree.currentBranchNode.id;
 
                 tree.switchBranch(tree.currentBranchName, tree.currentBranchNode, lastCommittedNode);
-
-                console.log(cmdObject.undoInfo);
 
                 break;
             }
@@ -314,6 +287,40 @@ class CommandHandler {
             default: {
                 break;
             }
+        }
+    }
+
+    push (operationType, tree, cmdObject, history) {
+        switch (operationType) {
+            case 'do': {
+                let pathsToRoot = tree.getPathsToNode(tree.currentBranchNode, tree.root);
+                let pushedNodeIds = [];
+
+                for (let i = 0; i < pathsToRoot.length; ++i) {
+                    for (let j = 0; j < pathsToRoot[i].length; ++j) {
+                        if (!pathsToRoot[i][j].isPushed) {
+                            pathsToRoot[i][j].isPushed = true;
+                            pushedNodeIds.push(pathsToRoot[i][j].id);
+                        }
+                    }
+                }
+
+                cmdObject.undoInfo['undoPushNodeIds'] = pushedNodeIds;
+                
+                break;
+            }
+
+            case 'undo': {
+                let popped = history.pop();
+                for (let i = 0; i < popped.undoInfo['undoPushNodeIds'].length; ++i) {
+                    tree.getNodeFromId(popped.undoInfo['undoPushNodeIds'][i]).isPushed = false;
+                }
+                break;
+            }
+
+            default:
+                console.log('Invalid push operation');
+                break;
         }
     }
 }

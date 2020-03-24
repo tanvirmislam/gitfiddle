@@ -8,6 +8,7 @@ class Node {
     #_isAnimated;
     #_isBeingCreated;
     #_isBeingDeleted;
+    #_isPushed;
     #_parents;
     #_children;
     #_allocatedTextPosition;
@@ -25,6 +26,7 @@ class Node {
         this._r = diameter / 2.0;
         this._isAnimated = true;
         this._isBeingCreated = true;
+        this._isPushed = false;
         this._parents = [];
         this._children = [];
         this._allocatedTextPosition = {
@@ -41,6 +43,7 @@ class Node {
     set r(val)                      { this._r = val; this._d = val * 2.0; }
     set isAnimated(status)          { this._isAnimated = status; }
     set isBeingCreated(status)      { this._isBeingCreated = status; }
+    set isPushed(status)            { this._isPushed = status; }
     set allocatedTextPosition(pos)  { this._allocatedTextPosition = pos; }
 
     get id()                        { return this._id; }
@@ -51,7 +54,8 @@ class Node {
     get r()                         { return this._r; }
     get isAnimated()                { return this._isAnimated; }
     get isBeingCreated()            { return this._isBeingCreated; }
-    get parents()                    { return this._parents; }    
+    get isPushed()                  { return this._isPushed; }
+    get parents()                   { return this._parents; }    
     get children()                  { return this._children; }
     get allocatedTextPosition()     { return this._allocatedTextPosition; }
 

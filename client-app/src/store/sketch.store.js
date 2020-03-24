@@ -38,8 +38,9 @@ const mutations = {
         state.animationSpeed = spd;
     },
 
-    start(state) {
+    startSimulation(state) {
         state.hasStarted = true;
+        state.tree.reset();
     }
 };
 
@@ -61,8 +62,8 @@ const actions = {
         context.commit('setAnimationSpeed', spd);
     },
 
-    start(context) {
-        context.commit('start');
+    startSimulation(context) {
+        context.commit('startSimulation');
     }
 };
 

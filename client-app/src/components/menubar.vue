@@ -12,12 +12,18 @@
             
             <v-spacer />
 
+            <div v-if="hasSimulationStarted" align="center" justify="center">
+                <v-btn fab small color="#fd5457" @click.prevent="resetSimulation">
+                    <span class="subtitle-1" style="color: white;"> <font-awesome-icon icon="bomb" /> </span>
+                </v-btn>
+            </div>
+            
         </v-app-bar>
     </div>
 </template>
 
 <script>
-    import { mapActions } from 'vuex';
+    import { mapGetters, mapActions } from 'vuex';
 
     export default {
         data: () => ({
@@ -25,6 +31,11 @@
         }),
 
         computed: {
+            ...mapGetters({
+                hasSimulationStarted: 'hasStarted',
+                tree: 'tree'
+            }),
+
             getTitle() {
                 switch (this.$vuetify.breakpoint.name) {
                     case 'xs': return 'GitFiddle';
@@ -35,7 +46,8 @@
 
         methods: {
             ...mapActions({
-                toggle: 'toggleSidebar'
+                toggle: 'toggleSidebar',
+                resetSimulation: 'startSimulation'
             })
         }
     }

@@ -75,13 +75,20 @@
                 set(val) {
                     return val;
                 }
-            }
+            },
 
+            treeRoot: {
+                get() {
+                    return this.$store.getters.tree.root;
+                }
+            }
         },
 
         methods: {
             ...mapActions({
-                queueGitCommand: 'queueCommand'
+                queueGitCommand: 'queueCommand',
+                flushGitCommandQueue: 'flushQueue',
+                flushGitCommandHistory: 'flushHistory'
             }),
 
             isAcceptingCommands() {
@@ -145,15 +152,16 @@
         },
 
         watch: {
+            treeRoot() {
+                this.flushGitCommandQueue();
+                this.flushGitCommandHistory();
+            },
+
             queue() {
                 while (this.queue[0] !== undefined) {
                     let top = this.queue.shift();
                     this.commandHandler.process(top, this.tree, this.history);
                 }
-            },
-
-            hasStarted() {
-                
             }
         }
     }

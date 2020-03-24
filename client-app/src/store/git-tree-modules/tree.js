@@ -87,7 +87,8 @@ class Tree {
         if (node !== undefined) {
             node.removeBranch(branchName);
             delete this._branchNameToNodeDict[branchName];
-            if (node === this._currentBranchNode) {
+            
+            if (branchName === this._currentBranchName) {
                 this._currentBranchName = undefined;
                 this._currentBranchNode = undefined;
             }
@@ -326,6 +327,8 @@ class Tree {
         let rootNode = new Node('1', diameter);
         rootNode.addBranch('master');
         this.root = rootNode;
+
+        this.animationSpeed = 10;
     }
 
     adjust() {
@@ -435,6 +438,10 @@ class Tree {
         this.getNodeFromId('16').addParent(this.getNodeFromId('8'));
         this.getNodeFromId('17').addParent(this.getNodeFromId('16'));
         this.getNodeFromId('18').addParent(this.getNodeFromId('14'));
+
+        this._nodeSet.forEach((n) => {
+            n.isPushed = true;
+        });
     }
 
 }

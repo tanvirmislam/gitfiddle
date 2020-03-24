@@ -23,6 +23,14 @@ const mutations = {
 
     popHistory(state) {
         return state.history.pop();
+    },
+
+    flushQueue(state) {
+        state.queue = [];
+    },
+
+    flushHistory(state) {
+        state.history = [];
     }
 };
 
@@ -38,6 +46,14 @@ const actions = {
 
     popHistory(context) {
         return context.commit('pop');
+    },
+
+    flushQueue(context) {
+        context.commit('flushQueue');
+    },
+
+    flushHistory(context) {
+        context.commit('flushHistory');
     }
 };
 
