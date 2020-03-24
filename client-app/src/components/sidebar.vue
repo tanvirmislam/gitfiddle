@@ -8,8 +8,26 @@
                     <v-list dense class="mb-10">
 
                     <v-subheader>Command History</v-subheader>
-                    <v-list-item-group>
+                    <v-list-item-group class="mb-2">
                         <v-list-item v-for="(commandObj, i) in history" :key="i">
+                            <v-list-item-content>
+
+                                <v-row>
+                                    <v-col cols=8>
+                                        <span>{{ commandObj.command }}</span>
+                                    </v-col>
+                                </v-row>
+
+                            </v-list-item-content>
+                        </v-list-item>
+                    </v-list-item-group>
+
+                    <v-divider></v-divider>
+                    <v-divider></v-divider>
+
+                    <v-subheader class="mt-2">Execution Queue</v-subheader>
+                    <v-list-item-group class="mb-2">
+                        <v-list-item v-for="(commandObj, i) in queue" :key="i">
                             <v-list-item-content>
 
                                 <v-row>
@@ -18,14 +36,16 @@
                                     </v-col>
                                     <v-spacer></v-spacer>
                                     <v-col align="right">
-                                        <span v-if="isBeingProcessed(commandObj)"><font-awesome-icon icon="spinner" pulse /></span>
-                                        <span v-if="hasBeenProcessed(commandObj)" class="ml-2 mr-2"><font-awesome-icon icon="check" /></span>
+                                        <span> <font-awesome-icon icon="spinner" pulse /> </span>
                                     </v-col>
                                 </v-row>
 
                             </v-list-item-content>
                         </v-list-item>
                     </v-list-item-group>
+
+                    <v-divider></v-divider>
+                    <v-divider></v-divider>
                     
                     </v-list>
                 </div>
@@ -63,9 +83,9 @@
             ...mapGetters([
                 'sidebarWidth',
                 'tree',
+                'hasStarted',
                 'queue',
-                'history',
-                'hasStarted'
+                'history'
             ]),
 
             status: {
@@ -148,6 +168,36 @@
                     this.cmd = '';
                     this.isNoCommandEntered = false;
                 }
+            },
+
+            executeQueuedCommands() {
+                while (this.queue[0] !== undefined) {
+                    if (this.tree.isAnimated()) {
+                        window.setTimeout(this.executeQueuedCommands, 100);
+                        break;
+                    }
+                    else {
+                        let top = this.queue[0];
+                        let status = this.commandHandler.process(top, this.tree, this.history);
+
+                        if (!status) {
+                            this.wasLastCommandValid = false;
+                            this.flushGitCommandQueue();
+                        }
+                        else {
+                            this.removeAQueuedCommand();
+                        }
+                    }
+                }
+            },
+
+            removeAQueuedCommand() {
+                if (this.tree.isAnimated()) {
+                    window.setTimeout(this.removeAQueuedCommand, 100);
+                }
+                else {
+                    this.queue.shift();
+                }
             }
         },
 
@@ -158,10 +208,7 @@
             },
 
             queue() {
-                while (this.queue[0] !== undefined) {
-                    let top = this.queue.shift();
-                    this.commandHandler.process(top, this.tree, this.history);
-                }
+                this.executeQueuedCommands();
             }
         }
     }

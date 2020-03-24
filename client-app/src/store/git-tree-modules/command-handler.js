@@ -41,53 +41,61 @@ class CommandHandler {
 
         if (cmdTokens[0] === 'undo') {
             if (history.length === 0) {
-                return;
+                return false;
             }
             operationType = 'undo';
             cmdTokens = history[history.length - 1].command.split(' ');
         }
         else {
             operationType = 'do';
-            history.push(cmdObject);
         }
+
+        let status;
 
         switch (cmdTokens[1]) {
             case 'branch': {
-                this.branch(operationType, cmdTokens[2], tree, cmdObject, history);
+                status = this.branch(operationType, cmdTokens[2], tree, cmdObject, history);
                 break;
             }
 
             case 'checkout': {
-                this.checkout(operationType, cmdTokens[2], tree, cmdObject, history);
+                status = this.checkout(operationType, cmdTokens[2], tree, cmdObject, history);
                 break;
             }
 
             case 'commit': {
-                this.commit(operationType, tree, cmdObject, history);
+                status = this.commit(operationType, tree, cmdObject, history);
                 break;
             }
 
             case 'merge': {
-                this.merge(operationType, cmdTokens[2], tree, cmdObject, history);
+                status = this.merge(operationType, cmdTokens[2], tree, cmdObject, history);
                 break;
             }
 
             case 'rebase': {
-                this.rebase(operationType, cmdTokens[2], tree, cmdObject, history);
+                status = this.rebase(operationType, cmdTokens[2], tree, cmdObject, history);
                 break;
             }
 
             case 'push': {
-                this.push(operationType, tree, cmdObject, history);
+                status = this.push(operationType, tree, cmdObject, history);
                 break;
             }
 
             default: {
+                status = false;
                 break;
             }
         }
         
         cmdObject.hasExecuted = true;
+
+        if (status && operationType !== 'undo') {
+            history.push(cmdObject);
+        }
+
+        return status;
     }
 
     branch(operationType, branchName, tree, cmdObject, history) {
@@ -110,11 +118,17 @@ class CommandHandler {
                 break;
             }
         }
+
+        return true;
     }
 
     checkout(operationType, branchName, tree, cmdObject, history) {
         switch (operationType) {
             case 'do': {
+                if (!tree.doesBranchExist(branchName)) {
+                    return false;
+                }
+
                 cmdObject.undoInfo['branchName'] = tree.currentBranchName;
                 tree.setCurrentBranch(branchName);
                 break;
@@ -128,9 +142,11 @@ class CommandHandler {
             
             default: {
                 console.log('Invalid chekcout command');
-                break;
+                return false;
             }
         }
+
+        return true;
     }
 
     commit(operationType, tree, cmdObject, history) {
@@ -160,21 +176,26 @@ class CommandHandler {
 
             default: {
                 console.log('Invalid commit command');
-                break;
+                return false;
             }
         }
+
+        return true;
     }
 
     merge(operationType, mergeWithBranchName, tree, cmdObject, history) {
         switch (operationType) {
             case 'do': {
+                if (!tree.doesBranchExist(mergeWithBranchName)) {
+                    return false;
+                }
+
                 let mergeWithNode = tree.getNodeFromBranchName(mergeWithBranchName);
 
                 if (mergeWithNode !== undefined) {
                     for (let i = 0; i < tree.currentBranchNode.parents.length; ++i) {
                         if (tree.currentBranchNode.parents[i] === mergeWithNode) {
-                            history.pop();
-                            return;
+                            return false;
                         }
                     }
 
@@ -194,32 +215,36 @@ class CommandHandler {
 
             default: {
                 console.log('Invalid merge command');
-                break;
+                return false;
             }
         }
+
+        return true;
     }
 
     rebase(operationType, branchName, tree, cmdObject, history) {
         switch (operationType) {
             case 'do': {
+                if (!tree.doesBranchExist(branchName)) {
+                    return false;
+                }
+
                 if (tree.currentBranchName === branchName) {
-                    history.pop();
-                    return;
+                    return false;
                 }
 
                 let currentNode = tree.currentBranchNode;
                 let rebaseNode = tree.getNodeFromBranchName(branchName);
 
                 if (rebaseNode.hasChild(currentNode)) {
-                    history.pop();
-                    return;
+                    break;
                 }
                 else if (currentNode.hasChild(rebaseNode)) {
                     cmdObject.undoInfo['rebaseUndoType'] = 1;
                     cmdObject.undoInfo['switchBranchFromNodeId'] = rebaseNode.id;
                     cmdObject.undoInfo['switchBranchToNodeId'] = currentNode.id;
                     tree.switchBranch(tree.currentBranchName, currentNode, rebaseNode);
-                    return;
+                    break;
                 }
 
                 let lcaInfo = tree.getLCAInfo(currentNode, rebaseNode);
@@ -285,9 +310,12 @@ class CommandHandler {
             }
 
             default: {
-                break;
+                console.log('Invalid rebase command');
+                return false;
             }
         }
+
+        return true;
     }
 
     push (operationType, tree, cmdObject, history) {
@@ -320,8 +348,10 @@ class CommandHandler {
 
             default:
                 console.log('Invalid push operation');
-                break;
+                return false;
         }
+
+        return true;
     }
 }
 

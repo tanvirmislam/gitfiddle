@@ -6,7 +6,9 @@
 
         <v-row v-if="!hasSimulationStarted" align="center" justify="center">
             <v-col align="center">
-                <v-btn large color="error" @click.prevent="startSimulation"> Get Started! </v-btn>
+                <v-btn medium color="error" @click.prevent="startSimulation"> 
+                    Launch <span class="subtitle-1 ml-1" style="color: white;"> <font-awesome-icon icon="rocket" /> </span>
+                </v-btn>
             </v-col>
         </v-row>
     </div>
@@ -70,12 +72,6 @@
                 animationSpeed: 'animationSpeed',
                 hasSimulationStarted: 'hasStarted'
             }),
-        },
-
-        watch: {
-            gitCommand() {
-                
-            }
         },
 
         methods: {

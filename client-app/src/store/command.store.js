@@ -31,6 +31,7 @@ const mutations = {
 
     flushHistory(state) {
         state.history = [];
+        state.list = [];
     }
 };
 

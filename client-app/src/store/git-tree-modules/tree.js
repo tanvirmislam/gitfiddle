@@ -70,6 +70,18 @@ class Tree {
     get nodeDiameter()          { return this._nodeDiameter; }
     get nextId()                { return ++this._nextId; }
 
+    isAnimated() {
+        let status = false;
+        this._nodeSet.forEach((n) => {
+            status = status || n.isAnimated;
+        });
+        return status;
+    }
+
+    doesBranchExist(branchName) {
+        return (this._branchNameToNodeDict[branchName] !== undefined);
+    }
+
     getNodeFromId(nodeId) {
         return this._idToNodeDict[nodeId];
     }
