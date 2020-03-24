@@ -13,7 +13,7 @@
                             <v-list-item-content>
 
                                 <v-row>
-                                    <v-col cols=8>
+                                    <v-col>
                                         <span>{{ commandObj.command }}</span>
                                     </v-col>
                                 </v-row>
