@@ -1,23 +1,20 @@
 <template>
 
-
     <v-navigation-drawer dark v-model="status" app clipped flat mobile-break-point :width="sidebarWidth" class="commandNavigationDrawer" ref="drawer">
+        
         <v-container class="overflow-y-auto commandContainer">
             <v-row>
-                <div class="commadHistory">
+                <div class="commandHistory">
                     <v-list dense class="mb-10">
-
                     <v-subheader>Command History</v-subheader>
                     <v-list-item-group class="mb-2">
                         <v-list-item v-for="(commandObj, i) in history" :key="i">
                             <v-list-item-content>
-
                                 <v-row>
                                     <v-col>
                                         <span>{{ commandObj.command }}</span>
                                     </v-col>
                                 </v-row>
-
                             </v-list-item-content>
                         </v-list-item>
                     </v-list-item-group>
@@ -29,7 +26,6 @@
                     <v-list-item-group class="mb-2">
                         <v-list-item v-for="(commandObj, i) in queue" :key="i">
                             <v-list-item-content>
-
                                 <v-row>
                                     <v-col cols=8>
                                         <span>{{ commandObj.command }}</span>
@@ -39,7 +35,6 @@
                                         <span> <font-awesome-icon icon="spinner" pulse /> </span>
                                     </v-col>
                                 </v-row>
-
                             </v-list-item-content>
                         </v-list-item>
                     </v-list-item-group>
@@ -57,9 +52,6 @@
                 </v-footer>
             </v-row>            
         </v-container>
-        
-
-       
         
     </v-navigation-drawer>
 
@@ -225,7 +217,7 @@
         -moz-osx-font-smoothing: grayscale;
     }
 
-    .commadHistory {
+    .commandHistory {
         height: 100%;
         width: 100%;
     }

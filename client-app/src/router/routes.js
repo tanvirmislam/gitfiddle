@@ -1,6 +1,6 @@
-import Home from '../components/sketch'
+import Sketch from '../components/sketch'
 
 export const routes = [
-    { name: 'home', path: '/', component: Home, display: 'GitFiddle', meta: { title: 'GitFiddle' }, icon: 'home' },
+    { name: 'Sketch', path: '/', component: Sketch, display: 'Sketch', meta: { title: 'GitFiddle' } },
     { path: '*', redirect: '/' }
 ];

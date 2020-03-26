@@ -1,5 +1,5 @@
 const path = require('path');
-const faviconsPlugin = require('favicons-webpack-plugin');
+const MinifyPlugin = require("babel-minify-webpack-plugin");
 
 module.exports = {
   "transpileDependencies": [
@@ -8,7 +8,7 @@ module.exports = {
   outputDir: path.resolve(__dirname, '../server/public'),
   configureWebpack: {
     plugins: [
-      new faviconsPlugin('./src/assets/favicon.png')
+      new MinifyPlugin()
     ]
   }
 };
