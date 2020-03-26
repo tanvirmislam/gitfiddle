@@ -87,6 +87,12 @@ class Node {
         }
     }
 
+    removeChild(node) {
+        if (this._children.includes(node)) {
+            this._children.splice(this._children.indexOf(node), 1);
+        }
+    }
+
     removeBranch(name) {
         if (this._branchNames.includes(name)) {
             this._branchNames.splice(this._branchNames.indexOf(name), 1);

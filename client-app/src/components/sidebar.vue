@@ -1,6 +1,6 @@
 <template>
 
-    <v-navigation-drawer dark v-model="status" app clipped flat mobile-break-point :width="sidebarWidth" class="commandNavigationDrawer" ref="drawer">
+    <v-navigation-drawer dark v-model="sidebarVisibilityStatus" app clipped flat mobile-break-point :width="sidebarWidth" class="commandNavigationDrawer" ref="drawer">
         
         <v-container class="overflow-y-auto commandContainer">
             <v-row>
@@ -9,7 +9,7 @@
                     
                         <v-subheader>Command History</v-subheader>
                         <div class="mb-2">
-                            <v-list-item v-for="(commandObj, i) in history" :key="i">
+                            <v-list-item v-for="(commandObj, index) in history" :key="index">
                                 <v-list-item-content>
                                     <v-row>
                                         <v-col>
@@ -25,11 +25,12 @@
 
                         <v-subheader class="mt-2">Execution Queue</v-subheader>
                         <div class="mb-2">
-                            <v-list-item v-for="(commandObj, i) in queue" :key="i">
+                            <v-list-item v-for="(commandObj, index) in queue" :key="index">
                                 <v-list-item-content>
                                     <v-row>
                                         <v-col cols=8>
-                                            <span>{{ commandObj.command }}</span>
+                                            <span v-if="index === queue.length - 1" id="lastQueuedCommand">{{ commandObj.command }}</span>
+                                            <span v-else>{{ commandObj.command }}</span>
                                         </v-col>
                                         <v-spacer></v-spacer>
                                         <v-col align="right">
@@ -49,7 +50,7 @@
 
             <v-row class="mt-10">
                  <v-footer absolute padless color='#363636' class='mt-3'>
-                    <v-text-field v-model="cmd" label="Command" :rules="[isAcceptingCommands, isCommandValid]" @keydown.enter="commandEntered" outlined height="40px" class="ml-4 mr-4" autocomplete="off"></v-text-field>
+                    <v-text-field v-model="cmd" ref="command" label="Command" :rules="[isAcceptingCommands, isCommandValid]" @keydown.enter="commandEntered" outlined height="40px" class="ml-4 mr-4" autocomplete="off"></v-text-field>
                 </v-footer>
             </v-row>            
         </v-container>
@@ -69,8 +70,24 @@
             cmd: '',
             commandHandler: new CommandHandler(),
             isNoCommandEnteredYet: true,
-            wasLastCommandValid: false
+            wasLastCommandValid: false,
+            showPreviousCommandAtIndex: undefined
         }),
+
+        mounted() {
+            // Press up-down arrows to get previous commands in the box
+            window.addEventListener('keydown', (e) => {
+                if (e.key == 'ArrowUp') {
+                    this.onArrowUpKeyPress();
+                }
+            });
+
+            window.addEventListener('keydown', (e) => {
+                if (e.key == 'ArrowDown') {
+                    this.onArrowDownKeyPress();
+                }
+            });
+        },
 
         computed: {
             ...mapGetters([
@@ -81,7 +98,7 @@
                 'history'
             ]),
 
-            status: {
+            sidebarVisibilityStatus: {
                 get () {
                     return this.$store.getters.sidebarVisibilityStatus;
                 },
@@ -94,6 +111,18 @@
                 get() {
                     return this.$store.getters.tree.root;
                 }
+            }
+        },
+
+        watch: {
+            treeRoot() {
+                this.flushGitCommandQueue();
+                this.flushGitCommandHistory();
+            },
+
+            queue() {
+                this.scrollQueuedCommandIntoView();
+                this.executeQueuedCommands();
             }
         },
 
@@ -124,25 +153,7 @@
 
                 return commandObj;
             },
-
-            isBeingProcessed(commandObj) {
-                if (commandObj !== null) {
-                    return (commandObj.hasExecuted === false);
-                }
-                else {
-                    return false;
-                }
-            },
-
-            hasBeenProcessed(commandObj) {
-                if (commandObj !== null) {
-                    return (commandObj.hasExecuted === true);
-                }
-                else {
-                    return false;
-                }
-            },
-
+            
             commandEntered() {
                 if (!this.hasSimulationStarted) {
                     return;
@@ -163,6 +174,7 @@
                 
                 this.cmd = '';
                 this.isNoCommandEnteredYet = false;
+                this.showPreviousCommandAtIndex = undefined;
             },
 
             executeQueuedCommands() {
@@ -195,19 +207,45 @@
                     window.setTimeout(this.dequeCommand, 100);
                 }
                 else {
+                    // Deque
                     this.queue.shift();
                 }
-            }
-        },
-
-        watch: {
-            treeRoot() {
-                this.flushGitCommandQueue();
-                this.flushGitCommandHistory();
             },
 
-            queue() {
-                this.executeQueuedCommands();
+            scrollQueuedCommandIntoView() {
+                // Wait until last history command li element is mounted
+                if (this.$el.querySelector('#lastQueuedCommand') === null || this.$el.querySelector('#lastQueuedCommand') === undefined) {
+                    window.setTimeout(this.scrollQueuedCommandIntoView, 100);
+                }
+                else {
+                    // Scroll
+                    this.$el.querySelector('#lastQueuedCommand').scrollIntoView();
+                }
+            },
+
+            onArrowUpKeyPress() {
+                if (this.sidebarVisibilityStatus && this.history.length > 0) {
+                    if (this.showPreviousCommandAtIndex === undefined) {
+                        this.showPreviousCommandAtIndex = this.history.length - 1;
+                    }
+                    else {
+                        this.showPreviousCommandAtIndex = Math.max(0, this.showPreviousCommandAtIndex - 1);
+                    }
+
+                    this.cmd = this.history[this.showPreviousCommandAtIndex].command;
+                }
+            },
+
+            onArrowDownKeyPress() {
+                if (this.sidebarVisibilityStatus && this.history.length > 0) {
+                    if (this.showPreviousCommandAtIndex === undefined) {
+                        return;
+                    }
+                    else {
+                        this.showPreviousCommandAtIndex = Math.min(this.history.length - 1, this.showPreviousCommandAtIndex + 1);
+                    }
+                    this.cmd = this.history[this.showPreviousCommandAtIndex].command;                    
+                }
             }
         }
     }

@@ -219,17 +219,24 @@ class CommandHandler {
                         }
                     }
 
-                    cmdObject.undoInfo['removeParentNodeId'] = mergeWithNode.id;
+                    cmdObject.undoInfo['mergedWithNodeId'] = mergeWithNode.id;
 
                     this.commit('do', tree, cmdObject, history);
                     tree.currentBranchNode.addParent(mergeWithNode);
+                    mergeWithNode.addChild(tree.currentBranchNode);
                 }
 
                 break;
             }
 
             case 'undo': {
-                tree.currentBranchNode.removeParent(cmdObject.undoInfo['removeParentNodeId']);
+                // History will be popped at commit undo
+                let currentNode = tree.currentBranchNode;
+                let mergedWithNode = tree.getNodeFromId(history[history.length - 1].undoInfo['mergedWithNodeId']);
+
+                currentNode.removeParent(mergedWithNode);
+                mergedWithNode.removeChild(currentNode);
+
                 this.commit('undo', tree, cmdObject, history);
 
                 break;
