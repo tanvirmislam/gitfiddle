@@ -134,7 +134,7 @@
                     this.mouseOnNode.x = sketch.mouseX;
                     this.mouseOnNode.y = sketch.mouseY;
                     this.mouseOnNode.branchNameTextBox.x = this.mouseOnNode.x;
-                    this.mouseOnNode.branchNameTextBox.y = this.mouseOnNode.y - this.mouseOnNode.r - this.mouseOnNode.textYDistanceFromNode;
+                    this.mouseOnNode.branchNameTextBox.y = this.mouseOnNode.y - this.mouseOnNode.r - this.mouseOnNode.branchNameTextBox.yMargin;
                 }
 
                 for (let node of this.nodeSet) {
