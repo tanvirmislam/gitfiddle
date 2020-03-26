@@ -1,10 +1,10 @@
 <template>
 
-    <v-navigation-drawer dark v-model="sidebarVisibilityStatus" app clipped flat mobile-break-point :width="sidebarWidth" class="commandNavigationDrawer" ref="drawer">
+    <v-navigation-drawer dark v-model="sidebarVisibilityStatus" app clipped flat mobile-break-point :width="sidebarWidth" id="commandNavigationDrawer">
         
-        <v-container class="overflow-y-auto commandContainer">
+        <v-container class="overflow-y-auto">
             <v-row>
-                <div class="commandHistory">
+                <div id="commandHistory">
                     <v-list dense class="mb-10">
                     
                         <v-subheader>Command History</v-subheader>
@@ -29,8 +29,7 @@
                                 <v-list-item-content>
                                     <v-row>
                                         <v-col cols=8>
-                                            <span v-if="index === queue.length - 1" id="lastQueuedCommand">{{ commandObj.command }}</span>
-                                            <span v-else>{{ commandObj.command }}</span>
+                                            <span> {{ commandObj.command }} </span>
                                         </v-col>
                                         <v-spacer></v-spacer>
                                         <v-col align="right">
@@ -44,6 +43,8 @@
                         <v-divider></v-divider>
                         <v-divider></v-divider>
                     
+                        <div id="endOfCommandList" class="py-12"></div>
+
                     </v-list>
                 </div>
             </v-row>
@@ -121,7 +122,7 @@
             },
 
             queue() {
-                this.scrollQueuedCommandIntoView();
+                this.scrollCommandsIntoView();
                 this.executeQueuedCommands();
             }
         },
@@ -212,15 +213,8 @@
                 }
             },
 
-            scrollQueuedCommandIntoView() {
-                // Wait until last history command li element is mounted
-                if (this.$el.querySelector('#lastQueuedCommand') === null || this.$el.querySelector('#lastQueuedCommand') === undefined) {
-                    window.setTimeout(this.scrollQueuedCommandIntoView, 100);
-                }
-                else {
-                    // Scroll
-                    this.$el.querySelector('#lastQueuedCommand').scrollIntoView();
-                }
+            scrollCommandsIntoView() {
+                this.$el.querySelector('#endOfCommandList').scrollIntoView();
             },
 
             onArrowUpKeyPress() {
@@ -256,15 +250,19 @@
 <style>
     @import url('https://fonts.googleapis.com/css?family=Ubuntu+Mono&display=swap');
 
-    .commandNavigationDrawer {
+    #commandNavigationDrawer {
         font-family: 'Ubuntu Mono';
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
     }
 
-    .commandHistory {
+    #commandHistory {
         height: 100%;
         width: 100%;
+    }
+
+    .v-list-item {
+        max-height: 10px;
     }
 
 </style>
