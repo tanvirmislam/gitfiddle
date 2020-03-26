@@ -35,7 +35,7 @@
                             </v-card-title>
 
                             <v-card-text justify="left" class="mt-5">
-                                You can drag to reposition the nodes :)
+                                You can click and drag (or double tap and drag) to reposition the nodes :)
                             </v-card-text>
                         </v-card>
                     </v-dialog>
@@ -93,7 +93,7 @@
 
         computed: {
             ...mapGetters({
-                hasSimulationStarted: 'hasStarted',
+                hasSimulationStarted: 'hasSimulationStarted',
                 tree: 'tree'
             }),
 
@@ -128,17 +128,17 @@
             }),
 
             async enableDragTips() {
-                let iPromiseIWillEnableIt = new Promise((response) => {
+                let promiseToEnableButton = new Promise((response) => {
                     setTimeout(() => response(true), 500)
                 });
-                this.showDragTipsButton = await iPromiseIWillEnableIt;
+                this.showDragTipsButton = await promiseToEnableButton;
             },
 
             async enableDestroyTreeButton() {
-                let iPromiseIWillEnableIt = new Promise((response) => {
+                let promiseToEnableButton = new Promise((response) => {
                     setTimeout(() => response(true), 1000)
                 });
-                this.showDestroyTreeButton = await iPromiseIWillEnableIt;
+                this.showDestroyTreeButton = await promiseToEnableButton;
             }
         }
     }

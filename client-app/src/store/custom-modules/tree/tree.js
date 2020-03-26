@@ -1,25 +1,33 @@
 import Node from './node';
 
 class Tree {
+    #_nextId;
+    #_nodeDiameter;
+    #_animationSpeed;
     #_root;
+    #_currentBranchName;
+    #_currentBranchNode;
     #_nodeSet;
     #_idToNodeDict;
     #_branchNameToNodeDict;
-    #_formatter;
-    #_currentBranchName;
-    #_currentBranchNode;
-    #_animationSpeed;
-    #_nextId;
     #_info;
+    #_formatter;
 
     constructor(treeFormatter) {
-        this._formatter = treeFormatter;
         this._init();
+        this._formatter = treeFormatter;
+        this._formatter.margin = this._nodeDiameter;
         this._buildPreviewTree();
     }
 
     _init() {
-        this._root = null;
+        this._nextId = 0;
+        this._nodeDiameter = 35;
+        this._animationSpeed = 35;
+
+        this._root = undefined;
+        this._currentBranchName = undefined;
+        this._currentBranchNode = undefined;
         this._nodeSet = new Set();
         this._idToNodeDict = {};
         this._branchNameToNodeDict = {};
@@ -29,11 +37,6 @@ class Tree {
             height: 0,
             levelOrder: []
         }
-        this._currentBranchName = undefined;
-        this._currentBranchNode = undefined;
-        this._animationSpeed = 35;
-        this._nodeDiameter = 35;
-        this._nextId = 1;
     }
 
     set root(node) {
@@ -52,23 +55,33 @@ class Tree {
 
         this.updateTreeInfo();
         this.adjust();
-
-        this.formatter.margin = node.d;
     }
 
     set animationSpeed(spd)     { this._animationSpeed = spd; }
     set nodeDiameter(d)         { this._nodeDiameter = d; }
 
+    get nextId()                { return ++this._nextId; }
+    get nodeDiameter()          { return this._nodeDiameter; }
+    get animationSpeed()        { return this._animationSpeed; }
     get root()                  { return this._root; }
     get nodeSet()               { return this._nodeSet; }
     get branchNameToNodeDict()  { return this._branchNameToNodeDict; }
     get info()                  { return this._info; }
-    get formatter()             { return this._formatter; }
     get currentBranchName()     { return this._currentBranchName; }
     get currentBranchNode()     { return this._branchNameToNodeDict[this._currentBranchName]; }
-    get animationSpeed()        { return this._animationSpeed; }
-    get nodeDiameter()          { return this._nodeDiameter; }
-    get nextId()                { return ++this._nextId; }
+    get formatter()             { return this._formatter; }
+    
+    getNodeFromId(nodeId) {
+        return this._idToNodeDict[nodeId];
+    }
+
+    getNodeFromBranchName(branchName) {
+        return this._branchNameToNodeDict[branchName];
+    }
+
+    doesBranchExist(branchName) {
+        return (this._branchNameToNodeDict[branchName] !== undefined);
+    }
 
     isAnimated() {
         let status = false;
@@ -78,21 +91,16 @@ class Tree {
         return status;
     }
 
-    doesBranchExist(branchName) {
-        return (this._branchNameToNodeDict[branchName] !== undefined);
-    }
-
-    getNodeFromId(nodeId) {
-        return this._idToNodeDict[nodeId];
-    }
-
-    getNodeFromBranchName(branchName) {
-        return this._branchNameToNodeDict[branchName];
-    }
-
     addBranchToNode(node, branchName) {
-        node.addBranch(branchName);
-        this._branchNameToNodeDict[branchName] = node;
+        if (node !== undefined) {
+            node.addBranch(branchName);
+            this._branchNameToNodeDict[branchName] = node;
+        }
+    }
+
+    addBranchToNodeId(nodeId, branchName) {
+        let node = this._idToNodeDict[nodeId];
+        this.addBranchToNode(node, branchName);
     }
 
     removeBranchFromNode(node, branchName) {
@@ -129,15 +137,20 @@ class Tree {
         }
     }
 
-    attachExistingBranchToNode(branchName, nodeId) {
-        let node = this._idToNodeDict[nodeId]
+    attachExistingBranchToNode(branchName, node) {
         if (node !== undefined) {
             node.addBranch(branchName);
             this._branchNameToNodeDict[branchName] = node;
+
             if (this._currentBranchName === branchName) {
                 this._currentBranchNode = node; 
             }
         }
+    }
+
+    attachExistingBranchToNodeId(branchName, nodeId) {
+        let node = this._idToNodeDict[nodeId];
+        this.attachExistingBranchToNode(branchName, node);
     }
 
     addChildToNode(parentNode, childNode) {
@@ -161,14 +174,14 @@ class Tree {
         this.adjust();
     }
 
-    addChildToBranchName(parentBranchName, childNode) {
-        let parentNode = this._branchNameToNodeDict[parentBranchName];
-        this.addChildToNode(parentNode, childNode);        
-    }
-
     addChildToNodeId(parentId, childNode) {
         let parentNode = this._idToNodeDict[parentId];
         this.addChildToNode(parentNode, childNode);
+    }
+
+    addChildToBranchName(parentBranchName, childNode) {
+        let parentNode = this._branchNameToNodeDict[parentBranchName];
+        this.addChildToNode(parentNode, childNode);        
     }
 
     remove(node) {
@@ -210,13 +223,16 @@ class Tree {
     }
 
     getLCAInfo(currentNode, rebaseNode) {
+        // Least common ancestor of the two given nodes
+        // Used in the rebase command
+        // Can be optimized
         let currentNodePathsToRoot = this.getPathsToNode(currentNode, this._root);
         let rebaseNodePathsToRoot = this.getPathsToNode(rebaseNode, this._root);
         let lcaNode;
 
         for (let i = 0; i < currentNodePathsToRoot.length; ++i) {
             for (let j = 0; j < rebaseNodePathsToRoot.length; ++j) {
-                lcaNode = this._getLCAFromPathsToRoot(currentNodePathsToRoot[i], rebaseNodePathsToRoot[j]);
+                lcaNode = this._getLCANodeFromPathsToRoot(currentNodePathsToRoot[i], rebaseNodePathsToRoot[j]);
                 if (lcaNode !== undefined) {
                     return {
                         currentNodePathsToRoot: currentNodePathsToRoot,
@@ -267,7 +283,7 @@ class Tree {
         }
     }
 
-    _getLCAFromPathsToRoot(nodeXPathToRoot, nodeYPathToRoot) {
+    _getLCANodeFromPathsToRoot(nodeXPathToRoot, nodeYPathToRoot) {
         let s = new Set(nodeXPathToRoot);
         for (let i = 0; i < nodeYPathToRoot.length; ++i) {
             if (s.has(nodeYPathToRoot[i])) {
@@ -278,6 +294,8 @@ class Tree {
     }
 
     getNodeCountTillAncestor(descendentNode, ancestorNode) {
+        // Total number of ancestor nodes
+        // Used in the rebase command
         let paths = this.getPathsToNode(descendentNode, ancestorNode);
         let s = new Set();
 
@@ -293,6 +311,9 @@ class Tree {
     }
 
     getBranchSpecificPath(branchName) {
+        // A path that starts from an ancestor node and 
+        // doesn't include any other branches other than the given branch
+        // Used in the rebase command
         let node = this._branchNameToNodeDict[branchName];
         let pathSet = new Set();
 
@@ -314,7 +335,7 @@ class Tree {
             }
         }
         else if (currentNode.children.length === 1){
-            if (pathSet.has(currentNode.children[0])) {
+            if (currentNode.branchNames.length === 0 && pathSet.has(currentNode.children[0])) {
                 pathSet.add(currentNode);
             }
             else {
@@ -334,13 +355,11 @@ class Tree {
 
     reset() {
         this._init();
+        this._animationSpeed = 10;
 
-        let diameter = 35;
-        let rootNode = new Node('1', diameter);
+        let rootNode = new Node(this.nextId, this.nodeDiameter);
         rootNode.addBranch('master');
         this.root = rootNode;
-
-        this.animationSpeed = 10;
     }
 
     adjust() {

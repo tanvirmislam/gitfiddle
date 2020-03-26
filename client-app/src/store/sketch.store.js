@@ -1,11 +1,10 @@
-import TreeFormatter from './git-tree-modules/tree-formatter';
-import Tree from './git-tree-modules/tree';
-
+import Tree from './custom-modules/tree/tree';
+import TreeFormatter from './custom-modules/tree/tree-formatter';
 
 // STATE
 const state = {
     tree: new Tree(new TreeFormatter()),
-    hasStarted: false
+    hasSimulationStarted: false
 };
 
 // GETTERS
@@ -17,7 +16,7 @@ const getters = {
     treeInfo: state => state.tree.info,
     treeFormatter: state => state.tree.formatter,
     animationSpeed: state => state.tree.animationSpeed,
-    hasStarted: state => state.hasStarted
+    hasSimulationStarted: state => state.hasSimulationStarted
 };
 
 // MUTATIONS
@@ -39,7 +38,7 @@ const mutations = {
     },
 
     startSimulation(state) {
-        state.hasStarted = true;
+        state.hasSimulationStarted = true;
         state.tree.reset();
     }
 };

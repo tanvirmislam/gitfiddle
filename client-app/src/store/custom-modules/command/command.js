@@ -1,6 +1,5 @@
 class Command {
     #_cmd;
-    #_isExecuting;
     #_hasExecuted;
     #_undoInfo;
 
@@ -10,8 +9,8 @@ class Command {
         this._undoInfo = {};
     }
 
-    set hasExecuted(val)    { this._hasExecuted = val;      }
-    set undoInfo(jsonInfo)  { this._undoInfo = jsonInfo     }
+    set hasExecuted(val)    { this._hasExecuted = val;  }
+    set undoInfo(info)      { this._undoInfo = info;    }
 
     get command()       { return this._cmd;         }
     get hasExecuted()   { return this._hasExecuted; }

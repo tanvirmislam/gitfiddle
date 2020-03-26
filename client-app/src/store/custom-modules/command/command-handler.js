@@ -1,12 +1,16 @@
-import Node from './node';
+import Node from '../tree/node';
 
 class CommandHandler {
     #_regex;
 
     constructor() {    
-        this._regex = /(^\b(git|Git)\b ((\b(branch|checkout -b|checkout|merge|rebase)\b \b[A-Za-z0-9]{2,}\b)|(\bcommit\b)|(\bpush\b))$)|(^undo$)/g;
+        this._regex = /(^\b(git|Git)\b ((\b(branch|checkout -b|checkout|merge|rebase)\b \b[A-Za-z0-9_-]{2,}\b)|(\bcommit\b)|(\bpush\b))$)|(^undo$)/g;
     }
 
+    /**
+     * Get a list of valid commands from the given command input
+     * Chops up merged commands like git checkout -b branch
+     */
     getValidCommands(cmd) {
         let found = cmd.match(this._regex);
         if (found === null || found.length !== 1 || cmd !== found[0]) {
@@ -32,6 +36,9 @@ class CommandHandler {
         return validCommands;
     }
 
+    /**
+     * Process the given command object
+     */
     process(cmdObject, tree, history) {
         cmdObject.hasExecuted = false;
 
@@ -40,9 +47,12 @@ class CommandHandler {
         let operationType = '';
 
         if (cmdTokens[0] === 'undo') {
+            // Return false if there's nothing to undo
             if (history.length === 0) {
                 return false;
             }
+
+            // Process the command in history
             operationType = 'undo';
             cmdTokens = history[history.length - 1].command.split(' ');
         }
@@ -107,13 +117,16 @@ class CommandHandler {
 
                 cmdObject.undoInfo['removeBranchFromNodeId'] = tree.currentBranchNode.id;
                 cmdObject.undoInfo['removeBranchName'] = branchName;
+
                 tree.addBranchToNode(tree.currentBranchNode, branchName);
+
                 break;
             }
 
             case 'undo': {
                 let popped = history.pop();
                 tree.removeBranchFromNodeId(popped.undoInfo['removeBranchFromNodeId'], popped.undoInfo['removeBranchName']);
+                
                 break;
             }
             
@@ -134,13 +147,16 @@ class CommandHandler {
                 }
 
                 cmdObject.undoInfo['branchName'] = tree.currentBranchName;
+
                 tree.setCurrentBranch(branchName);
+
                 break;
             }
 
             case 'undo': {
                 let popped = history.pop();
                 tree.setCurrentBranch(popped.undoInfo['branchName']);
+
                 break;
             }
             
@@ -171,7 +187,7 @@ class CommandHandler {
             case 'undo': {
                 let popped = history.pop();
 
-                tree.attachExistingBranchToNode(popped.undoInfo['checkoutBranchName'], popped.undoInfo['checkoutNodeId']);
+                tree.attachExistingBranchToNodeId(popped.undoInfo['checkoutBranchName'], popped.undoInfo['checkoutNodeId']);
                 tree.setCurrentBranch(popped.undoInfo['checkoutBranchName']);
                 tree.markNodeIdForDeletion(popped.undoInfo['removeNodeId']);
                 
@@ -204,6 +220,7 @@ class CommandHandler {
                     }
 
                     cmdObject.undoInfo['removeParentNodeId'] = mergeWithNode.id;
+
                     this.commit('do', tree, cmdObject, history);
                     tree.currentBranchNode.addParent(mergeWithNode);
                 }
@@ -214,6 +231,7 @@ class CommandHandler {
             case 'undo': {
                 tree.currentBranchNode.removeParent(cmdObject.undoInfo['removeParentNodeId']);
                 this.commit('undo', tree, cmdObject, history);
+
                 break;
             }
 
@@ -229,25 +247,23 @@ class CommandHandler {
     rebase(operationType, branchName, tree, cmdObject, history) {
         switch (operationType) {
             case 'do': {
-                if (!tree.doesBranchExist(branchName)) {
-                    return false;
-                }
-
-                if (tree.currentBranchName === branchName) {
+                if (!tree.doesBranchExist(branchName) || tree.currentBranchName === branchName) {
                     return false;
                 }
 
                 let currentNode = tree.currentBranchNode;
                 let rebaseNode = tree.getNodeFromBranchName(branchName);
 
-                if (rebaseNode.hasChild(currentNode)) {
-                    break;
+                if (rebaseNode.hasDescendent(currentNode)) {
+                    return false;
                 }
-                else if (currentNode.hasChild(rebaseNode)) {
+                else if (currentNode.hasDescendent(rebaseNode)) {
                     cmdObject.undoInfo['rebaseUndoType'] = 1;
                     cmdObject.undoInfo['switchBranchFromNodeId'] = rebaseNode.id;
                     cmdObject.undoInfo['switchBranchToNodeId'] = currentNode.id;
+                    
                     tree.switchBranch(tree.currentBranchName, currentNode, rebaseNode);
+
                     break;
                 }
 
@@ -261,6 +277,7 @@ class CommandHandler {
                 let lastCommittedNode = rebaseNode;
                 for (let i = 0; i < count; ++i) {
                     let newNode = new Node(tree.nextId, tree.nodeDiameter);
+                    
                     tree.addChildToNode(lastCommittedNode, newNode);
                     lastCommittedNode = newNode;
                     removeNodesInfo.push(newNode.getNodeInfo());
@@ -347,6 +364,7 @@ class CommandHandler {
                 for (let i = 0; i < popped.undoInfo['undoPushNodeIds'].length; ++i) {
                     tree.getNodeFromId(popped.undoInfo['undoPushNodeIds'][i]).isPushed = false;
                 }
+
                 break;
             }
 

@@ -11,7 +11,7 @@ class Node {
     #_isPushed;
     #_parents;
     #_children;
-    #_allocatedTextPosition;
+    #_branchNameTextBox;
 
     constructor(id, diameter) {
         this._init(id.toString(), diameter);
@@ -29,13 +29,13 @@ class Node {
         this._isPushed = false;
         this._parents = [];
         this._children = [];
-        this._allocatedTextPosition = {
+        this._branchNameTextBox = {
             x: null,
             y: null,
             width: null,
-            height: null
+            height: null,
+            yMargin: 8
         };
-        this._textYDistanceFromNode = 8;
     }
 
     set x(val)                      { this._x = val; }
@@ -45,8 +45,7 @@ class Node {
     set isAnimated(status)          { this._isAnimated = status; }
     set isBeingCreated(status)      { this._isBeingCreated = status; }
     set isPushed(status)            { this._isPushed = status; }
-    set allocatedTextPosition(pos)  { this._allocatedTextPosition = pos; }
-    set textYDistanceFromNode(val)  { this._textYDistanceFromNode = val; }
+    set branchNameTextBox(boxInfo)  { this._branchNameTextBox = boxInfo; }
 
     get id()                        { return this._id; }
     get branchNames()               { return this._branchNames; }
@@ -59,30 +58,27 @@ class Node {
     get isPushed()                  { return this._isPushed; }
     get parents()                   { return this._parents; }    
     get children()                  { return this._children; }
-    get allocatedTextPosition()     { return this._allocatedTextPosition; }
-    get textYDistanceFromNode()     { return this._textYDistanceFromNode; }
+    get branchNameTextBox()         { return this._branchNameTextBox; }
 
     addParent(node) {
-        if (!this._parents.includes(node)) {
-            this._parents.push(node);
-        }
-    }
-
-    addChild(childNode) {
-        if (childNode === null) {
-            console.log(`Node::addChild error: null child node provided`);    
+        if (node === undefined || node === null || this._parents.includes(node)) {
             return;
         }
+        this._parents.push(node);
+    }
 
-        if (!this._children.includes(childNode)) {
-            this._children.push(childNode);
+    addChild(node) {
+        if (node === undefined || node === null || this._children.includes(node)) {
+            return;
         }
+        this._children.push(node);
     }
 
     addBranch(name) {
-        if (!this._branchNames.includes(name)) {
-            this._branchNames.push(name);
+        if (name === undefined || name === '' || this._branchNames.includes(name)) {
+            return;
         }
+        this._branchNames.push(name);
     }
 
     removeParent(node) {
@@ -101,16 +97,16 @@ class Node {
         return (this._children.length === 0);
     }
 
-    hasChild(childNode) {
+    hasDescendent(node) {
         if (this._children.length === 0) {
             return false;
         }
-        else if (this._children.includes(childNode)) {
+        else if (this._children.includes(node)) {
             return true;
         }
         
         for (let i = 0; i < this._children.length; ++i) {
-            if (this._children[i].hasChild(childNode)) {
+            if (this._children[i].hasDescendent(node)) {
                 return true;
             }
         }

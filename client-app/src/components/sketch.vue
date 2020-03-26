@@ -19,6 +19,10 @@
     import { mapGetters, mapActions } from 'vuex';
 
     export default {
+        components: {
+            "vue-p5": VueP5
+        },
+
         data: () => ({
             dimensions: {
                 windowWidth: 0,
@@ -48,15 +52,7 @@
             mouseOnNode: undefined,
             isDragging: false
         }),
-
-        components: {
-            "vue-p5": VueP5
-        },
         
-        created() {
-
-        },
-
         mounted() {
             this.$nextTick(function() {
                 this.adjustDimensions(null);
@@ -73,7 +69,7 @@
                 treeInfo: 'treeInfo',
                 treeFormatter: 'treeFormatter',
                 animationSpeed: 'animationSpeed',
-                hasSimulationStarted: 'hasStarted'
+                hasSimulationStarted: 'hasSimulationStarted'
             }),
         },
 
@@ -137,8 +133,8 @@
                 if (this.mouseOnNode !== undefined && this.isDragging) {
                     this.mouseOnNode.x = sketch.mouseX;
                     this.mouseOnNode.y = sketch.mouseY;
-                    this.mouseOnNode.allocatedTextPosition['x'] = this.mouseOnNode.x;
-                    this.mouseOnNode.allocatedTextPosition['y'] = this.mouseOnNode.y - this.mouseOnNode.r - this.mouseOnNode.textYDistanceFromNode;
+                    this.mouseOnNode.branchNameTextBox.x = this.mouseOnNode.x;
+                    this.mouseOnNode.branchNameTextBox.y = this.mouseOnNode.y - this.mouseOnNode.r - this.mouseOnNode.textYDistanceFromNode;
                 }
 
                 for (let node of this.nodeSet) {
@@ -236,10 +232,10 @@
             },
 
             drawBranchNames(sketch, node) {
-                let x = node.allocatedTextPosition.x;
-                let y = node.allocatedTextPosition.y;
-                let width = node.allocatedTextPosition.width;
-                let height = node.allocatedTextPosition.height;
+                let x = node.branchNameTextBox.x;
+                let y = node.branchNameTextBox.y;
+                let width = node.branchNameTextBox.width;
+                let height = node.branchNameTextBox.height;
                 let branchNames = '';
 
                 sketch.fill(this.colors.text);
@@ -308,8 +304,3 @@
         }
     }
 </script>
-
-
-<style>
-
-</style>

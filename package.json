@@ -1,18 +1,18 @@
 {
   "name": "gitfiddle",
-  "version": "1.0.0",
-  "description": "Git branching visualization tool",
+  "version": "1.2.0",
+  "description": "git branching visualization tool",
   "main": "index.js",
   "scripts": {
     "start": "node server/index.js",
     "dev": "nodemon server/index.js"
   },
   "keywords": [
-    "Git",
-    "Github",
-    "Branching",
-    "Version Control",
-    "Visualization",
+    "git",
+    "github",
+    "branching",
+    "version control",
+    "visualization",
     "p5",
     "p5.js",
     "processing"
