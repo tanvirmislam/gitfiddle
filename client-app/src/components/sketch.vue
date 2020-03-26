@@ -274,13 +274,13 @@
             mousePressed(sketch) {
                 if (this.mouseOnNode !== undefined && sketch.dist(this.mouseOnNode.x, this.mouseOnNode.y, sketch.mouseX, sketch.mouseY) < this.mouseOnNode.d/2){
                     this.isDragging = true;
+                    this.toggleScrollLock('on');
                 }
-                return false;
             },
 
             mouseReleased() {
                 this.isDragging = false;
-                return false;
+                this.toggleScrollLock('off');
             },
 
             touchStarted(sketch) {
@@ -293,8 +293,18 @@
                 return false;
             },
 
-            touchMoved() {
-                return false;
+            toggleScrollLock(toggleType) {
+                const body = this.$el.body;
+                
+                if (toggleType === 'on') {
+                    body.classList.add("scroll-lock");
+                }
+                else if (toggleType === 'off') {
+                    body.classList.remove("scroll-lock");
+                }
+                else {
+                    console.log('toggleScrollLock::error - Invalid toggle type');
+                }
             }
         },
 
@@ -304,3 +314,12 @@
         }
     }
 </script>
+
+<style>
+    .scroll-lock {
+        height: 100%;
+        overflow: hidden;
+        width: 100%;
+        position: fixed;
+    }
+</style>>
