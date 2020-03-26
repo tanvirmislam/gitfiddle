@@ -1,7 +1,7 @@
 <template>
     <div>
         <v-row align="center" justify="center">
-            <vue-p5 @setup="setup" @draw="draw" @mousepressed="mousePressed" @mousereleased="mouseReleased" @touchstarted="touchStarted" @touchended="touchEnded" @touchmoved="touchMoved"></vue-p5>
+            <vue-p5 @setup="setup" @draw="draw" @mousepressed="mousePressed" @mousereleased="mouseReleased" @touchstarted="touchStarted" @touchended="touchEnded"></vue-p5>
         </v-row>
 
         <v-row v-if="!hasSimulationStarted" align="center" justify="center">
@@ -294,7 +294,7 @@
             },
 
             toggleScrollLock(toggleType) {
-                const body = this.$el.body;
+                const body = document.body;
                 
                 if (toggleType === 'on') {
                     body.classList.add("scroll-lock");
