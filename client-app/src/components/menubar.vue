@@ -12,11 +12,35 @@
             
             <v-spacer />
 
-            <div v-if="hasSimulationStarted" align="center" justify="center" class="mr-3">
-                <v-btn fab small color="#fd5457" @click.prevent="resetSimulation">
-                    <span class="subtitle-1" style="color: white;"> <font-awesome-icon icon="bomb" /> </span>
-                </v-btn>
-            </div>
+            <v-slide-y-transition>
+                <div v-if="showDestroyTreeButton" align="center" justify="center" class="mr-3">
+                    <v-btn fab small color="#fd5457" @click.prevent="resetSimulation">
+                        <span class="subtitle-1" style="color: white;"> <font-awesome-icon icon="bomb" /> </span>
+                    </v-btn>
+                </div>
+            </v-slide-y-transition>
+
+            <v-slide-x-transition>
+                <div v-if="!hasSimulationStarted && showDragTipsButton" align="center" justify="center" class="mr-3">
+                    <v-dialog v-model="dragTipsPopUp" width="500">
+                        <template v-slot:activator="{ on }">
+                            <v-btn fab small color="#4f97f0" v-on="on">
+                                <span class="subtitle-1" style="color: white;"> <font-awesome-icon icon="lightbulb" /> </span>
+                            </v-btn>
+                        </template>
+
+                        <v-card class="command">
+                            <v-card-title class="grey lighten-2 command">
+                                <strong> Did you know? </strong>
+                            </v-card-title>
+
+                            <v-card-text justify="left" class="mt-5">
+                                You can drag to reposition the nodes :)
+                            </v-card-text>
+                        </v-card>
+                    </v-dialog>
+                </div>
+            </v-slide-x-transition>
 
             <div align="center" justify="center" class="mr-5">
                 <v-dialog v-model="infoPopUp" width="500">
@@ -51,6 +75,9 @@
 
     export default {
         data: () => ({
+            showDestroyTreeButton: false,
+            showDragTipsButton: false,
+            dragTipsPopUp: false,
             infoPopUp: false,
             supportedCommandsList: [
                 'git branch <name>',
@@ -76,13 +103,43 @@
                     default: return 'GitFiddle: Visualize git branching commands';
                 }
             },
+
+            isPreviewTreeAnimationCompleted: {
+                get() {
+                    return !this.hasSimulationStarted && !this.tree.isAnimated();
+                }
+            }
+        },
+
+        watch: {
+            isPreviewTreeAnimationCompleted() {
+                this.enableDragTips();
+            },
+
+            hasSimulationStarted() {
+                this.enableDestroyTreeButton();
+            }
         },
 
         methods: {
             ...mapActions({
                 toggle: 'toggleSidebar',
                 resetSimulation: 'startSimulation'
-            })
+            }),
+
+            async enableDragTips() {
+                let iPromiseIWillEnableIt = new Promise((response) => {
+                    setTimeout(() => response(true), 500)
+                });
+                this.showDragTipsButton = await iPromiseIWillEnableIt;
+            },
+
+            async enableDestroyTreeButton() {
+                let iPromiseIWillEnableIt = new Promise((response) => {
+                    setTimeout(() => response(true), 1000)
+                });
+                this.showDestroyTreeButton = await iPromiseIWillEnableIt;
+            }
         }
     }
 </script>

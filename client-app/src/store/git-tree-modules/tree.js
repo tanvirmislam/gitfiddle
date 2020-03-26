@@ -31,7 +31,7 @@ class Tree {
         }
         this._currentBranchName = undefined;
         this._currentBranchNode = undefined;
-        this._animationSpeed = 20;
+        this._animationSpeed = 35;
         this._nodeDiameter = 35;
         this._nextId = 1;
     }
