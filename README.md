@@ -2,13 +2,6 @@
 
 #### Visualize git branching commands
 #### Check out the app at http://gitfiddle.herokuapp.com/
-
-___
-
-![](demo.gif)
-
-___
-
  
 ## Install
 From the root directory `gitfiddle/` and from the client-app directory `gitfiddle/client-app`, run
