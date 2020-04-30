@@ -2,43 +2,42 @@
 // Imports
 // ---------------------------------------------------------------------------------
 // Vue
-import Vue from 'vue';
+import Vue from 'vue'
 
 // Fonts and Icons
-import { FontAwesomeIcon } from './plugins/icons';
+import { FontAwesomeIcon } from './plugins/icons'
 
 // Vuetify
-import vuetify from './plugins/vuetify';
+import vuetify from './plugins/vuetify'
 
 // Axios (HTTP Client)
-import axios from 'axios';
+import axios from 'axios'
 
 // Router
-import router from './router/index';
-import { sync } from 'vuex-router-sync';
+import router from './router/index'
+import { sync } from 'vuex-router-sync'
 
 // Store (Vuex)
-import store from './store';
+import store from './store'
 
 // App root
-import App from './components/app-root';
+import App from './components/app-root'
 
 // ---------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------
-
 
 // Initiate Vue
 Vue.config.productionTip = false
-Vue.prototype.$http = axios;
-Vue.component('font-awesome-icon', FontAwesomeIcon);
+Vue.prototype.$http = axios
+Vue.component('font-awesome-icon', FontAwesomeIcon)
 
-sync(store, router);
+sync(store, router)
 
 const app = new Vue({
-    store,
-    router,
-    vuetify,
-    ...App
-});
+  store,
+  router,
+  vuetify,
+  ...App
+})
 
-app.$mount('#app');
+app.$mount('#app')

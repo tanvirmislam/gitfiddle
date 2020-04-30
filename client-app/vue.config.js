@@ -1,14 +1,14 @@
-const path = require('path');
-const MinifyPlugin = require("babel-minify-webpack-plugin");
+const path = require('path')
+const TerserPlugin = require('terser-webpack-plugin')
 
 module.exports = {
-  "transpileDependencies": [
-    "vuetify"
+  transpileDependencies: [
+    'vuetify'
   ],
-  outputDir: path.resolve(__dirname, '../server/public'),
+  outputDir: path.resolve(__dirname, '../dist/public'),
   configureWebpack: {
     plugins: [
-      new MinifyPlugin()
+      new TerserPlugin()
     ]
   }
-};
+}

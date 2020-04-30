@@ -1,6 +1,8 @@
 # Build
 **/node_modules
-**/dist
+client-app/dist
+server/dist
+server/public
 
 # local env files
 .env.local

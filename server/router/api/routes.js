@@ -1,9 +1,9 @@
-const express = require('express');
-const router = express.Router();
+const express = require('express')
+const router = express.Router()
 
 router.get('/', async (request, response) => {
-    let msg = { "name": "gitfiddle", "description": "git branching visualization tool" };
-    response.send(JSON.stringify(msg));
-});
+  const msg = { name: 'gitfiddle', descriptio: 'git branching visualization tool' }
+  response.send(JSON.stringify(msg))
+})
 
-module.exports = router;
+module.exports = router
