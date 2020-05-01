@@ -1,15 +1,9 @@
 {
   "name": "gitfiddle",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "description": "git branching visualization tool",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint ./server/",
-    "transpile": "babel ./server -d ./dist/server",
-    "clean": "rimraf ./dist/server",
-    "build-server": "npm-run-all lint clean transpile",
-    "build-client": "cd client-app && npm run build && cd ..",
-    "build-prod": "npm-run-all build-server build-client",
     "dev": "NODE_ENV=development nodemon ./dist/server/index.js",
     "start": "node ./dist/server/index.js"
   },
@@ -32,17 +26,6 @@
     "rimraf": "^3.0.2"
   },
   "devDependencies": {
-    "@babel/cli": "^7.8.4",
-    "@babel/core": "^7.9.0",
-    "@babel/preset-env": "^7.9.5",
-    "babel-eslint": "^10.1.0",
-    "babel-loader": "^8.1.0",
-    "eslint": "^6.8.0",
-    "eslint-config-standard": "^14.1.1",
-    "eslint-plugin-import": "^2.20.2",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-standard": "^4.0.1",
     "nodemon": "^2.0.2"
   }
 }
