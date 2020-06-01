@@ -1,23 +1,22 @@
-"use strict";
+const express = require('express');
 
-var express = require('express');
+const cors = require('cors');
 
-var cors = require('cors');
+const path = require('path');
 
-var routes = require('./router/api/routes');
+const history = require('connect-history-api-fallback');
 
-var path = require('path');
+const PORT = process.env.PORT || 5000;
+const app = express();
+app.use(cors()); // Client app routes redirection
 
-var PORT = process.env.PORT || 5000;
-var app = express();
-app.use(cors()); // API routes
-
-app.use('/api', routes); // Client app routes redirection
-
-app.use(express.static(path.resolve(__dirname, '../public')));
+const publicRoot = path.resolve(__dirname, '../public');
+console.log(publicRoot);
+app.use(express.static(publicRoot));
+app.use(history());
 app.get(/.*/, (request, response) => {
-  response.sendFile(__dirname, '../public/index.html');
+  response.sendFile(path.resolve(__dirname, '../public/index.html'));
 });
 app.listen(PORT, () => {
-  console.log("Server listening to PORT: ".concat(PORT));
+  console.log(`Server listening to PORT: ${PORT}`);
 });
