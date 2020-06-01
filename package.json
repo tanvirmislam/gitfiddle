@@ -1,15 +1,9 @@
 {
   "name": "gitfiddle",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Visualize git commits and branches",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint --fix --ext ./server/*.js ./server/**/*.js",
-    "transpile": "babel ./server -d ./dist/server",
-    "clean": "rimraf ./dist/server",
-    "build-server": "npm-run-all lint clean transpile",
-    "build-client": "cd client && npm run build && cd ..",
-    "build-prod": "npm-run-all build-server build-client",
     "dev": "NODE_ENV=development nodemon ./dist/server/index.js",
     "start": "node ./dist/server/index.js"
   },
