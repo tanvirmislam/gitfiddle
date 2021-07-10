@@ -1,8 +1,9 @@
 <template>
   <v-navigation-drawer
     id="commandNavigationDrawer"
-    v-model="sidebarVisibilityStatus"
+    v-model="vmodel"
     :width="sidebarWidth"
+    height="100%"
     dark
     app
     clipped
@@ -10,6 +11,20 @@
     mobile-break-point
   >
     <v-container class="overflow-y-auto">
+      <v-row class="mt-5">
+        <v-text-field
+          v-model="cmd"
+          ref="command"
+          label="Enter Git Command"
+          :rules="[isAcceptingCommands, isCommandValid]"
+          @keydown.enter="commandEntered"
+          outlined
+          height="40px"
+          class="ml-4 mr-4"
+          autocomplete="off"
+        ></v-text-field>
+      </v-row>
+
       <v-row>
         <div id="commandHistory">
           <v-list dense class="mb-10">
@@ -52,22 +67,6 @@
             <div id="endOfCommandList" class="py-12"></div>
           </v-list>
         </div>
-      </v-row>
-
-      <v-row class="mt-10">
-        <v-footer absolute padless color="#363636" class="mt-3">
-          <v-text-field
-            v-model="cmd"
-            ref="command"
-            label="Command"
-            :rules="[isAcceptingCommands, isCommandValid]"
-            @keydown.enter="commandEntered"
-            outlined
-            height="40px"
-            class="ml-4 mr-4"
-            autocomplete="off"
-          ></v-text-field>
-        </v-footer>
       </v-row>
     </v-container>
   </v-navigation-drawer>
@@ -113,6 +112,17 @@ export default {
       'history'
     ]),
 
+    vmodel: {
+      get () {
+        return this.sidebarVisibilityStatus
+      },
+
+      set () {
+        // empty setter
+        return null
+      }
+    },
+
     treeRoot () {
       return this.tree.root
     }
@@ -125,7 +135,8 @@ export default {
     },
 
     queue () {
-      this.scrollCommandsIntoView()
+      // Scroll the commands into view
+      // this.scrollCommandsIntoView()
 
       // Start execution if nothing is currently being executed
       if (!this.isExecutingCommand) {

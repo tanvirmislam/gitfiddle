@@ -1,18 +1,6 @@
 <template>
   <div>
     <div>
-      <!-- p5 sketch -->
-      <v-row id="sketch-container" align="center" justify="center">
-        <vue-p5
-          @setup="setup"
-          @draw="draw"
-          @mousepressed="mousePressed"
-          @mousereleased="mouseReleased"
-          @touchstarted="touchStarted"
-          @touchended="touchEnded"
-        ></vue-p5>
-      </v-row>
-
       <!-- Launch button to start GitFiddle -->
       <v-row v-if="!hasSimulationStarted" align="center" justify="center">
         <v-col align="center">
@@ -23,6 +11,18 @@
             </span>
           </v-btn>
         </v-col>
+      </v-row>
+
+      <!-- p5 sketch -->
+      <v-row id="sketch-container" align="center" justify="center">
+        <vue-p5
+          @setup="setup"
+          @draw="draw"
+          @mousepressed="mousePressed"
+          @mousereleased="mouseReleased"
+          @touchstarted="touchStarted"
+          @touchended="touchEnded"
+        ></vue-p5>
       </v-row>
     </div>
 

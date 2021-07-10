@@ -12,9 +12,13 @@
         </v-container>
       </v-content>
 
-      <v-divider></v-divider>
+      <!-- <v-divider></v-divider> -->
 
-      <v-footer dark padless>
+      <v-footer
+        id="vfooter"
+        dark
+        padless
+      >
         <footer-row />
       </v-footer>
     </v-app>
@@ -36,4 +40,8 @@ export default {
 </script>
 
 <style>
+#vfooter {
+  top: 100%;
+  bottom: 0;
+}
 </style>
