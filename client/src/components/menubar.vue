@@ -38,6 +38,13 @@
             <v-card class="command">
               <v-card-title class="grey lighten-2 command">
                 <strong> Visualize a Git Repo </strong>
+                <v-spacer></v-spacer>
+                <v-btn
+                  icon
+                  @click="gitInfoPopUp = false"
+                >
+                  <v-icon>mdi-close</v-icon>
+                </v-btn>
               </v-card-title>
 
               <v-card-text justify="left" class="mt-5">
@@ -108,6 +115,13 @@
             <v-card class="command">
               <v-card-title class="grey lighten-2 command">
                 <strong> Did you know? </strong>
+                <v-spacer></v-spacer>
+                <v-btn
+                  icon
+                  @click="dragTipsPopUp = false"
+                >
+                  <v-icon>mdi-close</v-icon>
+                </v-btn>
               </v-card-title>
 
               <v-card-text justify="left" class="mt-5">
@@ -133,6 +147,13 @@
           <v-card class="command">
             <v-card-title class="grey lighten-2 command">
               <strong> GitFiddle Commands </strong>
+              <v-spacer></v-spacer>
+              <v-btn
+                icon
+                @click="commandsInfoPopUp = false"
+              >
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
             </v-card-title>
 
             <v-card-text justify="left" class="mt-5">
